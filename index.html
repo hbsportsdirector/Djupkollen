@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1318">
+<title>Djupkollen live</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&display=swap">
+<style>
+:root{
+  --bg:#0f1318; --fg:#e8edf3; --muted:#9aa5b3; --line:#2a333f; --accent:#5b93f0;
+  --ok:#17a24a; --warn:#e6a800; --bad:#d63535;
+  --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none}
+[hidden]{display:none!important}
+#stage{position:fixed;inset:0;background:#000}
+#cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#cam.rear{transform:none}
+#ov{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
+#ov.rear{transform:none}
+.top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));display:flex;justify-content:space-between;align-items:flex-start;gap:10px;background:linear-gradient(rgba(0,0,0,.6),transparent)}
+.count{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.count small{font-size:1rem;font-weight:600;color:var(--muted);display:block;letter-spacing:.06em;text-transform:uppercase}
+.dots{display:flex;flex-wrap:wrap;gap:6px;max-width:60%;justify-content:flex-end}
+.dot{width:22px;height:22px;border-radius:50%;background:var(--line)}
+.dot.g{background:var(--ok)} .dot.y{background:var(--warn)} .dot.r{background:var(--bad)}
+.bottom{position:absolute;left:0;right:0;bottom:0;padding:12px max(14px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 14px) max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.hint{font-size:1rem;text-align:center;min-height:1.4em;text-shadow:0 1px 3px #000}
+.hint.warn{color:#ffd166;font-weight:600}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button{font:600 1rem/1 system-ui,sans-serif;color:var(--fg);background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:12px 18px;cursor:pointer;backdrop-filter:blur(6px)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#0b1220;font-weight:700;padding:16px 28px;font-size:1.15rem}
+button:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+button[aria-pressed="true"]{background:rgba(91,147,240,.5)}
+#flash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .15s}
+#flash.on{opacity:1}
+#flash.g{background:var(--ok)} #flash.y{background:var(--warn);color:#1b1400} #flash.r{background:var(--bad)}
+#flash b{font-family:var(--display);font-weight:800;font-size:clamp(3.5rem,17vw,8rem);line-height:.9;text-transform:uppercase;text-wrap:balance}
+#flash span{font-size:clamp(1.3rem,6vw,2.2rem);font-weight:600}
+#flash small{font-size:1.05rem;opacity:.85}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:max(24px,env(safe-area-inset-left,0px));background:var(--bg);overflow:auto}
+#start h1{font-family:var(--display);font-size:3rem;font-weight:800;text-transform:uppercase;margin:0;line-height:1}
+#start p,#start li{color:var(--muted);line-height:1.45;margin:0}
+#start ol{padding-left:1.2em;display:flex;flex-direction:column;gap:6px;margin:0}
+#start li::marker{color:var(--accent);font-weight:700}
+.opts{display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center}
+.opts label{color:var(--muted)}
+select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:#181e26;color:var(--fg)}
+.err{color:#ff8a8a;font-weight:600}
+@media (prefers-reduced-motion:reduce){#flash{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <h1>Djupkollen live</h1>
+  <p>Ställ telefonen rakt från sidan, cirka 3 meter bort i knähöjd, med skärmen mot spelaren. Efter varje knäböj blir hela skärmen grön, gul eller röd.</p>
+  <ol>
+    <li><b style="color:var(--fg)">Grönt</b>: lårbenet nådde parallellt med golvet eller lägre.</li>
+    <li><b style="color:var(--fg)">Gult</b>: nära, men inte riktigt nere.</li>
+    <li><b style="color:var(--fg)">Rött</b>: för högt.</li>
+  </ol>
+  <div class="opts">
+    <label for="gate">Godkänt från</label>
+    <select id="gate"><option value="0" selected>Parallellt (0°)</option><option value="5">5° under parallellt</option><option value="-5">5° ovanför (snällare)</option></select>
+    <label for="band">Gul zon</label>
+    <select id="band"><option value="5">5°</option><option value="10" selected>10°</option><option value="15">15°</option></select>
+    <label for="facing">Kamera</label>
+    <select id="facing"><option value="user" selected>Framsidan (skärmen mot spelaren)</option><option value="environment">Baksidan</option></select>
+    <label for="sound">Ljud</label>
+    <select id="sound"><option value="1" selected>På</option><option value="0">Av</option></select>
+  </div>
+  <button class="primary" id="go">Starta kameran</button>
+  <p id="starterr" class="err" hidden></p>
+  <p style="font-size:.9rem">Allt körs lokalt i telefonen. Ingen video skickas någonstans.</p>
+</div>
+
+<div id="stage" hidden>
+  <video id="cam" playsinline muted autoplay></video>
+  <canvas id="ov"></canvas>
+  <div class="top">
+    <div class="count"><span id="n">0</span><small id="nlabel">godkända av 0</small></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <div class="bottom">
+    <div class="hint" id="hint">Laddar modellen …</div>
+    <div class="row">
+      <button id="reset">Nollställ</button>
+      <button id="flip">Byt kamera</button>
+      <button id="stop">Avsluta</button>
+    </div>
+  </div>
+</div>
+
+<div id="flash" aria-live="assertive"><b id="fword"></b><span id="fdepth"></span><small id="fextra"></small></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+<script>
+(() => {
+const CDN = "https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/";
+const $ = id => document.getElementById(id);
+const L = {sh:[11,12], hip:[23,24], knee:[25,26], ankle:[27,28], heel:[29,30]};
+const WORD = {g:"Godkänt", y:"Nästan", r:"För högt"};
+const cam = $("cam"), ov = $("ov"), g = ov.getContext("2d");
+
+let pose, stream, running = false, facing = "user", wake = null, audio = null;
+let reps = [], state = {inRep:false, best:-1e9, bestLm:null, start:0, frames:0, heelBase:[], shankBase:[]};
+const DOWN = -55, UP = -65;
+
+// ---------- geometry (works mirrored or not: horizontal uses abs) ----------
+const P = (lm, k, s) => lm[L[k][s]];
+function thigh(lm, s, W, H){ const h = P(lm,"hip",s), k = P(lm,"knee",s); return Math.atan2((h.y-k.y)*H, Math.max(Math.abs((h.x-k.x)*W), 1e-6))*180/Math.PI; }
+function lean(lm, s, W, H){ const a = P(lm,"sh",s), h = P(lm,"hip",s); return Math.atan2(Math.abs((a.x-h.x)*W), Math.abs((a.y-h.y)*H))*180/Math.PI; }
+function seg(lm, a, b, W, H){ return Math.hypot((lm[a].x-lm[b].x)*W, (lm[a].y-lm[b].y)*H); }
+function median(a){ const b = a.slice().sort((x,y)=>x-y); return b[Math.floor(b.length/2)]; }
+
+// ---------- model ----------
+async function getPose(){
+  if (pose) return pose;
+  if (typeof Pose === "undefined") throw new Error("Modellen kunde inte laddas. Kontrollera internet och ladda om.");
+  pose = new Pose({locateFile: f => CDN + f});
+  pose.setOptions({modelComplexity:0, smoothLandmarks:true, enableSegmentation:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5});
+  pose.onResults(onResults);
+  await pose.initialize();
+  return pose;
+}
+
+// ---------- camera ----------
+async function startCam(){
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:facing, width:{ideal:640}, height:{ideal:480}, frameRate:{ideal:30}}, audio:false});
+  cam.srcObject = stream; await cam.play();
+  cam.classList.toggle("rear", facing === "environment"); ov.classList.toggle("rear", facing === "environment");
+}
+
+// ---------- loop ----------
+let busy = false, smooth = [];
+async function tick(){
+  if (!running) return;
+  if (!busy && cam.readyState >= 2){ busy = true; try { await pose.send({image: cam}); } catch(e){} busy = false; }
+  requestAnimationFrame(tick);
+}
+function onResults(r){
+  const lm = r.poseLandmarks, W = cam.videoWidth, H = cam.videoHeight;
+  if (ov.width !== W || ov.height !== H){ ov.width = W; ov.height = H; }
+  g.clearRect(0,0,W,H);
+  if (!lm){ hint("Ingen person i bild. Hela kroppen ska synas."); return; }
+  const vis = s => ["hip","knee","ankle"].reduce((a,k) => a + (P(lm,k,s).visibility||0), 0);
+  const s = vis(0) >= vis(1) ? 0 : 1;
+  if ((P(lm,"hip",s).visibility||0) < 0.5 || (P(lm,"knee",s).visibility||0) < 0.5 || (P(lm,"ankle",s).visibility||0) < 0.4){ hint("Höft, knä och fot måste synas."); return; }
+  const frontal = Math.abs(lm[23].x-lm[24].x)*W / Math.max(seg(lm, L.hip[s], L.knee[s], W, H), 1);
+  const a = thigh(lm, s, W, H);
+  smooth.push(a); if (smooth.length > 3) smooth.shift();
+  const th = median(smooth);
+  draw(lm, s, W, H, th);
+  if (!state.inRep){
+    if (th < -72){ state.heelBase.push(lm[L.heel[s]].y); state.shankBase.push(seg(lm, L.knee[s], L.ankle[s], W, H)); if (state.heelBase.length > 30){ state.heelBase.shift(); state.shankBase.shift(); } }
+    hint(frontal > 0.45 ? "Kameran står snett. Ställ den rakt från sidan." : "Redo. Gör en knäböj.", frontal > 0.45);
+    if (th > DOWN){ state.inRep = true; state.best = th; state.bestLm = lm; state.frames = 1; state.side = s; }
+  } else {
+    state.frames++;
+    if (th > state.best){ state.best = th; state.bestLm = lm; }
+    hint("Nere …");
+    if (th < UP){
+      if (state.frames >= 3) finishRep(W, H);
+      state.inRep = false;
+    }
+  }
+}
+function finishRep(W, H){
+  const gate = +$("gate").value, band = +$("band").value, d = state.best, lm = state.bestLm, s = state.side;
+  const cls = d >= gate ? "g" : d >= gate - band ? "y" : "r";
+  let heel = false;
+  if (state.heelBase.length > 5){ const up = (median(state.heelBase) - lm[L.heel[s]].y)*H; heel = up > 0.08*median(state.shankBase); }
+  const rep = {cls, depth:d, lean:lean(lm, s, W, H), heel};
+  reps.push(rep); renderCount(); flash(rep);
+}
+
+// ---------- UI ----------
+function hint(t, warn){ const h = $("hint"); if (h.textContent !== t) h.textContent = t; h.classList.toggle("warn", !!warn); }
+function renderCount(){
+  const ok = reps.filter(r => r.cls === "g").length;
+  $("n").textContent = ok; $("nlabel").textContent = `godkända av ${reps.length}`;
+  $("dots").innerHTML = reps.slice(-12).map(r => `<span class="dot ${r.cls}"></span>`).join("");
+}
+let flashTimer;
+function flash(r){
+  const f = $("flash"); const v = Math.round(Math.abs(r.depth));
+  $("fword").textContent = WORD[r.cls];
+  $("fdepth").textContent = v === 0 ? "Precis parallellt" : r.depth > 0 ? `${v}° under parallellt` : `${v}° ovanför parallellt`;
+  $("fextra").textContent = [r.lean > 55 ? "Mycket framåtlutad" : "", r.heel ? "Hälarna lyfte" : ""].filter(Boolean).join(" · ");
+  f.className = "on " + r.cls;
+  if (navigator.vibrate) navigator.vibrate(r.cls === "g" ? 120 : r.cls === "y" ? [80,60,80] : [60,40,60,40,60]);
+  beep(r.cls);
+  clearTimeout(flashTimer); flashTimer = setTimeout(() => { f.className = ""; }, 3000);
+}
+function beep(cls){
+  if ($("sound").value !== "1") return;
+  try{
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+    const seq = cls === "g" ? [[880,.18]] : cls === "y" ? [[660,.12],[660,.12]] : [[220,.35]];
+    let t = audio.currentTime;
+    seq.forEach(([fq,dur]) => { const o = audio.createOscillator(), gn = audio.createGain(); o.type = "square"; o.frequency.value = fq; gn.gain.setValueAtTime(.25, t); gn.gain.exponentialRampToValueAtTime(.001, t+dur); o.connect(gn).connect(audio.destination); o.start(t); o.stop(t+dur); t += dur + .08; });
+  } catch(e){}
+}
+function draw(lm, s, W, H, th){
+  const pt = k => ({x:lm[L[k][s]].x*W, y:lm[L[k][s]].y*H});
+  const h = pt("hip"), k = pt("knee"), a = pt("ankle"), sh = pt("sh");
+  const col = th >= +$("gate").value ? "#2bd165" : th >= +$("gate").value - +$("band").value ? "#ffc21a" : "#ff6b6b";
+  g.lineCap = "round"; g.lineWidth = Math.max(3, W/160);
+  g.setLineDash([10,8]); g.strokeStyle = "rgba(255,255,255,.7)"; g.beginPath(); g.moveTo(0,k.y); g.lineTo(W,k.y); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = "rgba(255,255,255,.8)"; g.beginPath(); g.moveTo(sh.x,sh.y); g.lineTo(h.x,h.y); g.moveTo(k.x,k.y); g.lineTo(a.x,a.y); g.stroke();
+  g.strokeStyle = col; g.lineWidth *= 1.6; g.beginPath(); g.moveTo(h.x,h.y); g.lineTo(k.x,k.y); g.stroke();
+  g.fillStyle = col; [h,k].forEach(p => { g.beginPath(); g.arc(p.x,p.y,g.lineWidth,0,7); g.fill(); });
+}
+
+// ---------- controls ----------
+async function start(){
+  $("go").disabled = true; $("starterr").hidden = true;
+  facing = $("facing").value;
+  try{
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("Webbläsaren kan inte använda kameran här. Sidan måste öppnas via https.");
+    $("start").hidden = true; $("stage").hidden = false;
+    hint("Laddar modellen …");
+    await getPose();
+    hint("Startar kameran …");
+    await startCam();
+    try { wake = await navigator.wakeLock.request("screen"); } catch(e){}
+    beep("g"); // unlocks audio on the user's tap; quiet confirmation
+    running = true; tick();
+  } catch(e){
+    $("stage").hidden = true; $("start").hidden = false; $("go").disabled = false;
+    $("starterr").hidden = false;
+    $("starterr").textContent = e && e.name === "NotAllowedError" ? "Kameran nekades. Tillåt kamera för den här sidan i webbläsarens inställningar och försök igen." : (e && e.message) || "Kunde inte starta.";
+  }
+}
+function stop(){
+  running = false; if (stream) stream.getTracks().forEach(t => t.stop()); stream = null;
+  if (wake){ wake.release().catch(()=>{}); wake = null; }
+  $("stage").hidden = true; $("start").hidden = false; $("go").disabled = false;
+}
+$("go").addEventListener("click", start);
+$("stop").addEventListener("click", stop);
+$("reset").addEventListener("click", () => { reps = []; renderCount(); });
+$("flip").addEventListener("click", async () => { facing = facing === "user" ? "environment" : "user"; $("facing").value = facing; try { await startCam(); } catch(e){ hint("Kunde inte byta kamera.", true); } });
+document.addEventListener("visibilitychange", async () => { if (document.visibilityState === "visible" && running && !wake){ try { wake = await navigator.wakeLock.request("screen"); } catch(e){} } });
+})();
+</script>
+</body>
+</html>
