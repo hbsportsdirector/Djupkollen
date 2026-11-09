@@ -70,6 +70,8 @@ select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);b
     <select id="gate"><option value="0" selected>Parallellt (0°)</option><option value="5">5° under parallellt</option><option value="-5">5° ovanför (snällare)</option></select>
     <label for="band">Gul zon</label>
     <select id="band"><option value="5">5°</option><option value="10" selected>10°</option><option value="15">15°</option></select>
+    <label for="cal">Höftkorrigering</label>
+    <select id="cal"><option value="0">0° (rå mätning)</option><option value="5">+5°</option><option value="8" selected>+8° (standard)</option><option value="12">+12°</option><option value="16">+16°</option></select>
     <label for="facing">Kamera</label>
     <select id="facing"><option value="user" selected>Framsidan (skärmen mot spelaren)</option><option value="environment">Baksidan</option></select>
     <label for="sound">Ljud</label>
@@ -77,6 +79,7 @@ select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);b
   </div>
   <button class="primary" id="go">Starta kameran</button>
   <p id="starterr" class="err" hidden></p>
+  <p style="font-size:.9rem">Höftkorrigering: modellens höftpunkt sitter något ovanför lårets överkant, så mätningen blir annars några grader för sträng. Höj värdet om appen dömer för hårt, sänk om den är för snäll.</p>
   <p style="font-size:.9rem">Allt körs lokalt i telefonen. Ingen video skickas någonstans.</p>
 </div>
 
@@ -124,7 +127,7 @@ async function getPose(){
   if (pose) return pose;
   if (typeof Pose === "undefined") throw new Error("Modellen kunde inte laddas. Kontrollera internet och ladda om.");
   pose = new Pose({locateFile: f => CDN + f});
-  pose.setOptions({modelComplexity:0, smoothLandmarks:true, enableSegmentation:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5});
+  pose.setOptions({modelComplexity:1, smoothLandmarks:true, enableSegmentation:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5});
   pose.onResults(onResults);
   await pose.initialize();
   return pose;
@@ -156,7 +159,7 @@ function onResults(r){
   const frontal = Math.abs(lm[23].x-lm[24].x)*W / Math.max(seg(lm, L.hip[s], L.knee[s], W, H), 1);
   const a = thigh(lm, s, W, H);
   smooth.push(a); if (smooth.length > 3) smooth.shift();
-  const th = median(smooth);
+  const th = median(smooth) + (+$("cal").value);
   draw(lm, s, W, H, th);
   if (!state.inRep){
     if (th < -72){ state.heelBase.push(lm[L.heel[s]].y); state.shankBase.push(seg(lm, L.knee[s], L.ankle[s], W, H)); if (state.heelBase.length > 30){ state.heelBase.shift(); state.shankBase.shift(); } }
