@@ -101,7 +101,7 @@ dd{margin:0;font-weight:700}
 .btn:disabled{opacity:.5;cursor:default}
 form .f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 form label{font-weight:800;font-size:14px}
-form input[type=text],form input[type=number],form select,form textarea{border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;outline:none;width:100%}
+form input[type=text],form input[type=password],form input[type=number],form select,form textarea{border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;outline:none;width:100%}
 form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
@@ -110,7 +110,8 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
 .drop{border:2px dashed var(--muted);border-radius:14px;padding:14px;text-align:center;font-weight:700;color:var(--muted);background:#fff;cursor:pointer;display:block}
 .drop img{max-height:180px;border-radius:10px;display:block;margin:0 auto 6px}
 .err{color:#c23a4f;font-weight:800;font-size:14px;min-height:1em}
-.foot{text-align:center;color:var(--muted);font-size:13px;font-weight:600;margin-top:28px}
+.hint{color:var(--muted);font-weight:700;font-size:14px;margin:4px 0 0}
+.check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;margin:4px 0 12px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
 .toast.show{opacity:1}
 </style>
@@ -124,6 +125,7 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
     </svg>
     <h1 id="title">Samlingen</h1>
     <div class="spacer"></div>
+    <button class="iconbtn" id="lockBtn" title="Logga in för att ändra" aria-label="Logga in eller inställningar">🔒</button>
   </header>
 
   <div id="status" class="note" hidden></div>
@@ -157,59 +159,240 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
 
   <div class="grid" id="grid"></div>
   <div class="empty" id="empty" hidden></div>
-  <p class="foot" id="foot"></p>
 </div>
 
+<button class="fab" id="addBtn" hidden>＋ Lägg till kort</button>
 
 <!-- Detail -->
 <div class="backdrop" id="detailM"><div class="sheet" role="dialog" aria-modal="true" id="detailBody"></div></div>
+<!-- Form -->
+<div class="backdrop" id="formM"><div class="sheet" role="dialog" aria-modal="true">
+  <button class="iconbtn x" data-close>✕</button>
+  <h2 id="formTitle">Nytt kort</h2>
+  <form id="cardForm" autocomplete="off">
+    <div class="f">
+      <label class="drop" id="drop">
+        <span id="dropInner">📷 Tryck för att välja en bild på kortet</span>
+        <input type="file" id="file" accept="image/*" hidden>
+      </label>
+    </div>
+    <div class="f"><label for="fName">Namn *</label><input type="text" id="fName" required maxlength="60" placeholder="t.ex. Pikachu"></div>
+    <div class="two">
+      <div class="f"><label for="fType">Typ</label><select id="fType"></select></div>
+      <div class="f"><label for="fHp">HP</label><input type="number" id="fHp" min="0" max="999" step="10"></div>
+    </div>
+    <div class="two">
+      <div class="f"><label for="fSet">Set / expansion</label><input type="text" id="fSet" maxlength="60"></div>
+      <div class="f"><label for="fNum">Nummer</label><input type="text" id="fNum" maxlength="20" placeholder="t.ex. 25/165"></div>
+    </div>
+    <div class="two">
+      <div class="f"><label for="fRar">Sällsynthet</label><select id="fRar"></select></div>
+      <div class="f"><label for="fCount">Antal</label><input type="number" id="fCount" min="1" max="99" value="1"></div>
+    </div>
+    <div class="f"><label for="fVal">Värde per kort (kr, ungefär)</label><input type="number" id="fVal" min="0" step="1"></div>
+    <div class="f"><label>Har vi det?</label><div class="seg" id="fStatus"></div></div>
+    <div class="f"><label for="fNote">Anteckning</label><textarea id="fNote" rows="2" maxlength="300" placeholder="t.ex. Fick av mormor 🎁"></textarea></div>
+    <div class="err" id="formErr"></div>
+    <div class="btns"><button class="btn primary" type="submit" id="saveBtn">Spara kortet</button><button class="btn" type="button" data-close>Avbryt</button></div>
+  </form>
+</div></div>
+<!-- Settings -->
+<div class="backdrop" id="setM"><div class="sheet" role="dialog" aria-modal="true">
+  <button class="iconbtn x" data-close>✕</button>
+  <h2>Inställningar</h2>
+  <form id="pwForm" autocomplete="off">
+    <div class="f"><label for="oldPw">Nuvarande lösenord</label><input type="password" id="oldPw" autocomplete="current-password" required></div>
+    <div class="f"><label for="newPw">Nytt lösenord (minst 6 tecken)</label><input type="password" id="newPw" autocomplete="new-password" minlength="6" required></div>
+    <div class="err" id="setErr"></div>
+    <div class="btns"><button class="btn primary" type="submit">Byt lösenord</button><button class="btn" type="button" id="logoutBtn">Logga ut</button></div>
+  </form>
+</div></div>
+<!-- Login -->
+<div class="backdrop" id="loginM"><div class="sheet" role="dialog" aria-modal="true">
+  <button class="iconbtn x" data-close>✕</button>
+  <h2>🔒 Logga in</h2>
+  <div id="loginBox">
+    <form id="loginForm">
+      <div class="f"><label for="loginPw">Lösenord</label><input type="password" id="loginPw" autocomplete="current-password" required></div>
+      <label class="check"><input type="checkbox" id="remember" checked> Kom ihåg mig på den här enheten</label>
+      <div class="btns"><button class="btn primary" type="submit" id="loginBtn">Logga in</button></div>
+    </form>
+  </div>
+  <div id="setupBox" hidden>
+    <p class="hint">Första gången: skriv startkoden du fick och välj ett eget lösenord.</p>
+    <form id="setupForm" autocomplete="off">
+      <div class="f"><label for="setupCode">Startkod</label><input type="text" id="setupCode" required></div>
+      <div class="f"><label for="setupPw">Välj lösenord (minst 6 tecken)</label><input type="password" id="setupPw" autocomplete="new-password" minlength="6" required></div>
+      <div class="btns"><button class="btn primary" type="submit">Spara lösenord</button></div>
+    </form>
+  </div>
+  <div class="err" id="loginErr"></div>
+</div></div>
 <div class="toast" id="toast"></div>
 
-<script>
-(function(){
+<script>(function(){
+const SB="https://abwmdhvaxqlpyzgvuedj.supabase.co", KEY="sb_publishable_R1OuxhyY7HJq68XcEoFnSw_Zl16Gux9";
 const TYPES=[["Gräs","#4fbf5a"],["Eld","#ff7a3d"],["Vatten","#3c9dff"],["Blixt","#f5c400"],["Psykisk","#b65ce0"],["Kamp","#c46a3a"],["Mörker","#4a4560"],["Metall","#8c9aa8"],["Drake","#c9a227"],["Fe","#ff8fc8"],["Färglös","#b8ae9c"],["Tränare","#2fb3a6"],["Energi","#6d7bff"]];
 const TC=Object.fromEntries(TYPES);
 const RAR=["Vanlig","Ovanlig","Sällsynt","Holo","Ultra (ex/V/GX)","Illustration","Hemlig/Guld"];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let cards=[],meta={};let st={tab:"har",type:"all",q:"",sort:"value"};
+let cards=[], imgs={}, st={tab:"har",type:"all",q:"",sort:"value"}, editing=null, pendingImg=null;
+let pw=null; try{pw=sessionStorage.getItem("pkpw")||localStorage.getItem("pkpw")}catch(_){}
+
+/* ---------- API ---------- */
+async function rest(path){const r=await fetch(SB+"/rest/v1/"+path,{headers:{apikey:KEY},cache:"no-store"});if(!r.ok)throw new Error("Kunde inte hämta data");return r.json()}
+async function rpc(fn,args){
+  const r=await fetch(SB+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{})});
+  const t=await r.text();let j=null;try{j=t?JSON.parse(t):null}catch(_){}
+  if(!r.ok){const m=(j&&(j.message||j.hint))||"Något gick fel";const e=new Error(m);e.code=j&&j.code;throw e}
+  return j;
+}
+function pwErr(e){if(e&&e.code==="28P01"&&/lösenord/i.test(e.message)){logout(true)}return e&&e.message||"Något gick fel"}
+
+/* ---------- helpers ---------- */
 function kr(n){return Math.round(n).toLocaleString("sv-SE")+" kr"}
 function sum(a){return a.reduce((s,c)=>s+(Number(c.count)||1),0)}
+function src(c){if(!c.img)return"";if(c.img.startsWith("db:"))return imgs[c.img.slice(3)]||"";return c.img}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2400)}
+function open(sel){$(sel).classList.add("open")}
+function close(sel){$(sel).classList.remove("open")}
+function status(t){const e=$("#status");if(t){e.textContent=t;e.hidden=false}else e.hidden=true}
+
+/* ---------- render ---------- */
+function renderAuth(){
+  const on=!!pw;
+  $("#addBtn").hidden=!on;
+  $("#lockBtn").textContent=on?"⚙️":"🔒";
+  $("#lockBtn").title=on?"Inställningar":"Logga in för att ändra";
+}
 function renderStats(){const h=cards.filter(c=>(c.status||"har")==="har");
- $("#sTotal").textContent=sum(h);$("#sA").textContent=h.length;
- $("#sB").textContent=kr(h.reduce((s,c)=>s+(Number(c.valueSek)||0)*(Number(c.count)||1),0));
- $("#sFav").textContent=h.filter(c=>c.fav).length;}
+  $("#sTotal").textContent=sum(h);$("#sA").textContent=h.length;
+  $("#sB").textContent=kr(h.reduce((s,c)=>s+(Number(c.value_sek)||0)*(Number(c.count)||1),0));
+  $("#sFav").textContent=h.filter(c=>c.fav).length;}
 function renderChips(){const present=new Set(cards.filter(c=>(c.status||"har")===st.tab).map(c=>c.type).filter(Boolean));
- $("#typeChips").innerHTML=`<button class="chip" data-type="all" aria-pressed="${st.type==="all"}">Alla typer</button>`+
- TYPES.filter(([n])=>present.has(n)).map(([n,c])=>`<button class="chip" data-type="${n}" aria-pressed="${st.type===n}"><span class="dot" style="background:${c}"></span>${n}</button>`).join("")+
- (cards.some(c=>c.fav)?`<button class="chip" data-type="fav" aria-pressed="${st.type==="fav"}">⭐ Favoriter</button>`:"");}
+  $("#typeChips").innerHTML=`<button class="chip" data-type="all" aria-pressed="${st.type==="all"}">Alla typer</button>`+
+  TYPES.filter(([n])=>present.has(n)||st.type===n).map(([n,c])=>`<button class="chip" data-type="${n}" aria-pressed="${st.type===n}"><span class="dot" style="background:${c}"></span>${n}</button>`).join("")+
+  (cards.some(c=>c.fav)?`<button class="chip" data-type="fav" aria-pressed="${st.type==="fav"}">⭐ Favoriter</button>`:"");}
 function filtered(){const q=st.q.trim().toLowerCase();let l=cards.filter(c=>(c.status||"har")===st.tab);
- if(st.type==="fav")l=l.filter(c=>c.fav);else if(st.type!=="all")l=l.filter(c=>c.type===st.type);
- if(q)l=l.filter(c=>[c.name,c.set,c.number,c.note,c.type].join(" ").toLowerCase().includes(q));
- const by={new:(a,b)=>(b.addedAt||0)-(a.addedAt||0),name:(a,b)=>String(a.name).localeCompare(String(b.name),"sv"),hp:(a,b)=>(Number(b.hp)||0)-(Number(a.hp)||0),
- value:(a,b)=>(Number(b.valueSek)||0)-(Number(a.valueSek)||0),rarity:(a,b)=>RAR.indexOf(b.rarity)-RAR.indexOf(a.rarity),
- set:(a,b)=>String(a.set||"").localeCompare(String(b.set||""),"sv")||String(a.number||"").localeCompare(String(b.number||""),"sv",{numeric:true})};
- return l.slice().sort(by[st.sort]);}
-function tile(c){const col=TC[c.type]||"#c9bfae";
- return `<button class="tile" data-id="${esc(c.id)}" style="--tc:${col}"><div class="pic"><img loading="lazy" alt="${esc(c.name)}" src="${esc(c.img)}">${c.fav?'<span class="star">⭐</span>':""}${(Number(c.count)||1)>1?`<span class="qty">×${Number(c.count)}</span>`:""}</div>
- <div class="meta"><div class="nm">${esc(c.name)}</div><div class="sub">${esc([c.set,c.number].filter(Boolean).join(" · "))}</div>${c.valueSek!=null?`<span class="val">≈ ${esc(kr(c.valueSek))}</span>`:""}</div></button>`;}
-function render(){renderStats();renderChips();const l=filtered();$("#grid").innerHTML=l.map(tile).join("");
- const e=$("#empty");if(l.length)e.hidden=true;else{e.hidden=false;e.innerHTML=cards.some(c=>(c.status||"har")===st.tab)?'<div class="big">🔍</div>Inga kort matchar filtret.':(st.tab==="har"?'<div class="big">🃏</div>Samlingen är tom.':'<div class="big">✨</div>Inga önskekort ännu.');}}
-function openDetail(id){const c=cards.find(x=>x.id===id);if(!c)return;const col=TC[c.type]||"#c9bfae";
- const rows=[["Typ",c.type],["HP",c.hp],["Set",c.set],["Nummer",c.number],["Sällsynthet",c.rarity],["Antal",c.count>1?c.count:null],["Värde",c.valueSek!=null?("ca "+kr(c.valueSek)+" / st"+(c.valueUsd?" ($"+c.valueUsd+")":"")):null],["Värdekälla",c.valueSource],["Anteckning",c.note]].filter(r=>r[1]!=null&&r[1]!=="");
- $("#detailBody").innerHTML=`<button class="iconbtn x" data-close>✕</button><h2>${esc(c.name)}</h2><div class="detail"><div class="pic" style="--tc:${col}"><img alt="${esc(c.name)}" src="${esc(c.img)}"></div><div><dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div></div>`;
- $("#detailM").classList.add("open");}
-document.addEventListener("click",e=>{if(e.target.closest("[data-close]")||e.target.classList.contains("backdrop")){$("#detailM").classList.remove("open")}});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#detailM").classList.remove("open")});
-document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{st.tab=t.dataset.tab;st.type="all";document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));render()}));
+  if(st.type==="fav")l=l.filter(c=>c.fav);else if(st.type!=="all")l=l.filter(c=>c.type===st.type);
+  if(q)l=l.filter(c=>[c.name,c.set,c.number,c.note,c.type].join(" ").toLowerCase().includes(q));
+  const by={new:(a,b)=>String(b.added_at).localeCompare(String(a.added_at)),name:(a,b)=>String(a.name).localeCompare(String(b.name),"sv"),
+  hp:(a,b)=>(Number(b.hp)||0)-(Number(a.hp)||0),value:(a,b)=>(Number(b.value_sek)||0)-(Number(a.value_sek)||0),
+  rarity:(a,b)=>RAR.indexOf(b.rarity)-RAR.indexOf(a.rarity),
+  set:(a,b)=>String(a.set||"").localeCompare(String(b.set||""),"sv")||String(a.number||"").localeCompare(String(b.number||""),"sv",{numeric:true})};
+  return l.slice().sort(by[st.sort]);}
+function tile(c){const col=TC[c.type]||"#c9bfae",s=src(c);
+  return `<button class="tile" data-id="${esc(c.id)}" style="--tc:${col}"><div class="pic">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:`<div class="ph">${esc((c.name||"?")[0])}</div>`}${c.fav?'<span class="star">⭐</span>':""}${(Number(c.count)||1)>1?`<span class="qty">×${Number(c.count)}</span>`:""}</div>
+  <div class="meta"><div class="nm">${esc(c.name)}</div><div class="sub">${esc([c.set,c.number].filter(Boolean).join(" · ")||c.type||"")}</div>${c.value_sek!=null?`<span class="val">≈ ${esc(kr(c.value_sek))}</span>`:""}</div></button>`;}
+function render(){renderAuth();renderStats();renderChips();const l=filtered();$("#grid").innerHTML=l.map(tile).join("");
+  const e=$("#empty");if(l.length)e.hidden=true;else{e.hidden=false;e.innerHTML=cards.some(c=>(c.status||"har")===st.tab)?'<div class="big">🔍</div>Inga kort matchar filtret.':(st.tab==="har"?'<div class="big">🃏</div>Samlingen är tom.':'<div class="big">✨</div>Inga önskekort ännu.')}}
+
+/* ---------- data ---------- */
+async function load(){
+  try{
+    const rows=await rest("pokemon_cards?select=*&order=added_at.desc");
+    const need=rows.filter(c=>c.img&&c.img.startsWith("db:")).map(c=>c.img.slice(3)).filter(id=>!imgs[id]);
+    if(need.length){const im=await rest("pokemon_images?select=id,data&id=in.("+need.join(",")+")");im.forEach(i=>imgs[i.id]=i.data)}
+    cards=rows;status("");render();
+    const id=$("#detailBody").dataset.id;if(id&&$("#detailM").classList.contains("open")){if(cards.some(c=>c.id===id))openDetail(id);else close("#detailM")}
+  }catch(e){status("Kunde inte ladda samlingen just nu. Försök igen om en stund.")}
+}
+
+/* ---------- detail ---------- */
+function openDetail(id){const c=cards.find(x=>x.id===id);if(!c)return;const col=TC[c.type]||"#c9bfae",s=src(c);
+  const rows=[["Typ",c.type],["HP",c.hp],["Set",c.set],["Nummer",c.number],["Sällsynthet",c.rarity],["Antal",c.count>1?c.count:null],
+  ["Värde",c.value_sek!=null?("ca "+kr(c.value_sek)+" / st"+(c.value_usd?" ($"+c.value_usd+")":"")):null],["Värdekälla",c.value_source],
+  ["Tillagt",c.added_at?new Date(c.added_at).toLocaleDateString("sv-SE"):null],["Anteckning",c.note]].filter(r=>r[1]!=null&&r[1]!=="");
+  $("#detailBody").innerHTML=`<button class="iconbtn x" data-close>✕</button><h2>${esc(c.name)}</h2>
+  <div class="detail"><div class="pic" style="--tc:${col}">${s?`<img alt="${esc(c.name)}" src="${esc(s)}">`:""}</div>
+  <div><dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+  ${pw?`<div class="btns"><button class="btn" data-act="fav">${c.fav?"★ Ta bort favorit":"☆ Favorit"}</button>
+  ${c.status==="onskar"?'<button class="btn primary" data-act="got">🎉 Vi fick det!</button>':""}
+  <button class="btn" data-act="edit">✏️ Ändra</button><button class="btn danger" data-act="del">🗑 Ta bort</button></div>`:
+  `<p class="hint">🔒 Logga in för att ändra.</p>`}<div class="err" id="dErr"></div></div></div>`;
+  $("#detailBody").dataset.id=id;open("#detailM");}
+$("#detailBody").addEventListener("click",async e=>{const b=e.target.closest("[data-act]");if(!b)return;
+  const id=$("#detailBody").dataset.id,c=cards.find(x=>x.id===id);if(!c)return;const act=b.dataset.act;
+  try{
+    if(act==="fav"){b.disabled=true;await rpc("pokemon_save_card",{pw,card:{id,fav:!c.fav}});await load()}
+    else if(act==="got"){b.disabled=true;await rpc("pokemon_save_card",{pw,card:{id,status:"har",added_at:new Date().toISOString()}});close("#detailM");toast("Grattis till nya kortet! 🎉");await load()}
+    else if(act==="edit"){close("#detailM");openForm(c)}
+    else if(act==="del"){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Säker? Tryck igen";return}
+      b.disabled=true;await rpc("pokemon_delete_card",{pw,card_id:id});close("#detailM");toast("Kortet togs bort");await load()}
+  }catch(err){$("#dErr").textContent=pwErr(err);b.disabled=false}
+});
+
+/* ---------- form ---------- */
+$("#fType").innerHTML='<option value="">—</option>'+TYPES.map(([n])=>`<option>${n}</option>`).join("");
+$("#fRar").innerHTML='<option value="">—</option>'+RAR.map(r=>`<option>${r}</option>`).join("");
+function seg(el,opts,val){el.innerHTML=opts.map(([k,l])=>`<button type="button" data-v="${k}" aria-pressed="${k===val}">${esc(l)}</button>`).join("");el.dataset.v=val}
+document.addEventListener("click",e=>{const b=e.target.closest(".seg button");if(!b)return;const s=b.parentElement;s.dataset.v=b.dataset.v;[...s.children].forEach(x=>x.setAttribute("aria-pressed",x===b))});
+function openForm(c){editing=c||null;pendingImg=null;
+  $("#formTitle").textContent=c?"Ändra kort":"Nytt kort";
+  $("#fName").value=c?.name||"";$("#fType").value=c?.type||"";$("#fHp").value=c?.hp??"";$("#fSet").value=c?.set||"";$("#fNum").value=c?.number||"";
+  $("#fRar").value=c?.rarity||"";$("#fCount").value=c?.count||1;$("#fVal").value=c?.value_sek??"";$("#fNote").value=c?.note||"";
+  seg($("#fStatus"),[["har","✅ Vi har det"],["onskar","✨ Önskar oss"]],c?.status||st.tab);
+  const s=c?src(c):"";$("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:"📷 Tryck för att ta eller välja en bild";
+  $("#formErr").textContent="";$("#file").value="";open("#formM");}
+$("#file").addEventListener("change",async()=>{const f=$("#file").files[0];if(!f)return;
+  try{pendingImg=await shrink(f);$("#dropInner").innerHTML=`<img src="${pendingImg}" alt="">Bild vald ✓`}catch(_){$("#formErr").textContent="Kunde inte läsa bilden."}});
+function shrink(file){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const max=700;let w=img.width,h=img.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
+  const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);let q=.82,d=cv.toDataURL("image/jpeg",q);
+  while(d.length>550000&&q>.4){q-=.1;d=cv.toDataURL("image/jpeg",q)}res(d)};img.onerror=rej;img.src=URL.createObjectURL(file)})}
+$("#cardForm").addEventListener("submit",async e=>{e.preventDefault();
+  const name=$("#fName").value.trim();if(!name){$("#formErr").textContent="Kortet behöver ett namn.";return}
+  const btn=$("#saveBtn");btn.disabled=true;btn.textContent="Sparar…";$("#formErr").textContent="";
+  try{
+    let img=editing?.img||"";
+    if(pendingImg)img=await rpc("pokemon_add_image",{pw,data:pendingImg});
+    const val=$("#fVal").value;
+    const card={name,type:$("#fType").value,hp:$("#fHp").value,set:$("#fSet").value.trim(),number:$("#fNum").value.trim(),rarity:$("#fRar").value,
+      count:$("#fCount").value||"1",status:$("#fStatus").dataset.v,note:$("#fNote").value.trim(),img,value_sek:val};
+    if(editing){card.id=editing.id;if(String(val)!==String(editing.value_sek??"")){card.value_source=val===""?"":"Eget värde";card.value_usd=""}}
+    else if(val!=="")card.value_source="Eget värde";
+    await rpc("pokemon_save_card",{pw,card});
+    close("#formM");toast(editing?"Ändringen sparades":"Kortet lades till! 🃏");
+    if(!editing&&st.tab!==card.status){st.tab=card.status;syncTabs()}
+    await load();
+  }catch(err){$("#formErr").textContent=pwErr(err)}
+  finally{btn.disabled=false;btn.textContent="Spara kortet"}
+});
+
+/* ---------- login / settings ---------- */
+function logout(silent){pw=null;try{sessionStorage.removeItem("pkpw");localStorage.removeItem("pkpw")}catch(_){}render();if(!silent)toast("Utloggad")}
+$("#lockBtn").addEventListener("click",async()=>{
+  if(pw){$("#setErr").textContent="";$("#oldPw").value="";$("#newPw").value="";open("#setM");return}
+  $("#loginErr").textContent="";$("#loginPw").value="";$("#setupBox").hidden=true;$("#loginBox").hidden=false;open("#loginM");
+  try{const has=await rpc("pokemon_has_password");if(!has){$("#setupBox").hidden=false;$("#loginBox").hidden=true}}catch(_){}
+});
+$("#loginForm").addEventListener("submit",async e=>{e.preventDefault();const p=$("#loginPw").value;const b=$("#loginBtn");b.disabled=true;
+  try{await rpc("pokemon_login",{pw:p});pw=p;try{($("#remember").checked?localStorage:sessionStorage).setItem("pkpw",p)}catch(_){}
+    close("#loginM");toast("Inloggad – nu kan du ändra ✏️");render()}
+  catch(err){$("#loginErr").textContent=err.message||"Fel lösenord"}finally{b.disabled=false}});
+$("#setupForm").addEventListener("submit",async e=>{e.preventDefault();const code=$("#setupCode").value.trim(),p=$("#setupPw").value;
+  try{await rpc("pokemon_set_password",{old_pw:code,new_pw:p});pw=p;try{localStorage.setItem("pkpw",p)}catch(_){}
+    close("#loginM");toast("Lösenordet är sparat 🔒");render()}catch(err){$("#loginErr").textContent=err.message}});
+$("#pwForm").addEventListener("submit",async e=>{e.preventDefault();const o=$("#oldPw").value,n=$("#newPw").value;
+  try{await rpc("pokemon_set_password",{old_pw:o,new_pw:n});pw=n;try{if(localStorage.getItem("pkpw"))localStorage.setItem("pkpw",n);else sessionStorage.setItem("pkpw",n)}catch(_){}
+    close("#setM");toast("Nytt lösenord sparat")}catch(err){$("#setErr").textContent=err.message}});
+$("#logoutBtn").addEventListener("click",()=>{close("#setM");logout()});
+
+/* ---------- misc ---------- */
+document.addEventListener("click",e=>{if(e.target.closest("[data-close]")){e.target.closest(".backdrop").classList.remove("open");return}
+  if(e.target.classList.contains("backdrop"))e.target.classList.remove("open")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".backdrop.open").forEach(b=>b.classList.remove("open"))});
+function syncTabs(){document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===st.tab))}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{st.tab=t.dataset.tab;st.type="all";syncTabs();render()}));
 $("#typeChips").addEventListener("click",e=>{const b=e.target.closest("[data-type]");if(b){st.type=b.dataset.type;render()}});
 $("#q").addEventListener("input",e=>{st.q=e.target.value;render()});
 $("#sort").addEventListener("change",e=>{st.sort=e.target.value;render()});
 $("#grid").addEventListener("click",e=>{const t=e.target.closest(".tile");if(t)openDetail(t.dataset.id)});
+$("#addBtn").addEventListener("click",()=>openForm(null));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 $("#sort").value="value";
-fetch("cards.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{cards=d.cards||[];meta=d;render();
- $("#foot").textContent="Uppdaterad "+(d.updated||"")+" · Värden är ungefärliga (PriceCharting m.fl., omräknat med ca "+(d.usdSek||"")+" kr/USD)";})
- .catch(()=>{$("#empty").hidden=false;$("#empty").textContent="Kunde inte ladda samlingen."});
+if(pw)rpc("pokemon_login",{pw}).catch(()=>logout(true));
+render();load();
 })();
 </script>
 </body>
