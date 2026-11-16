@@ -6,173 +6,173 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Samlingen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#fff8ec; --ink:#2b2340; --muted:#7a7090; --card:#ffffff; --line:#efe3cf;
-  --sun:#ffcf3f; --sun-d:#f2b705; --berry:#ff5d73; --sky:#4cb6ff; --mint:#38d39f; --grape:#8a6cff;
-  --radius:18px; --shadow:0 6px 0 rgba(43,35,64,.08), 0 10px 24px rgba(43,35,64,.08);
+  --paper:#f5f2ea; --paper2:#fbf9f4; --ink:#16130f; --soft:#6f685c; --faint:#a39c8e; --line:#dcd6c8;
+  --red:#c2342b; --blue:#27457a; --yellow:#e0a92e; --jade:#7fa596; --white:#fffdf8;
+  --serif:"Noto Serif KR",Georgia,serif; --sans:"IBM Plex Sans KR",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --saek:linear-gradient(90deg,var(--red) 0 20%,var(--yellow) 20% 40%,var(--jade) 40% 60%,var(--blue) 60% 80%,var(--ink) 80% 100%);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
-body{font-family:Nunito,system-ui,sans-serif;color:var(--ink);background:var(--bg);
-  background-image:radial-gradient(circle at 12px 12px, rgba(255,207,63,.25) 2px, transparent 2.5px);
-  background-size:28px 28px; min-height:100vh}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);min-height:100vh;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body::before{content:"";display:block;height:5px;background:var(--saek)}
 button{font:inherit;cursor:pointer;color:inherit}
 input,select,textarea{font:inherit;color:inherit}
-.wrap{max-width:1100px;margin:0 auto;padding:16px 14px 90px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 18px 110px}
 
-/* Header */
-header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 16px}
-.logo{width:52px;height:52px;flex:none}
-h1{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:clamp(26px,5vw,38px);line-height:1;margin:0;letter-spacing:-.5px}
-h1 small{display:block;font-family:Nunito;font-weight:700;font-size:14px;color:var(--muted);letter-spacing:0;margin-top:4px}
+/* Masthead */
+header.top{display:flex;align-items:flex-end;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--ink);margin-bottom:0}
+.seal{flex:none;width:46px;height:46px;background:var(--red);color:var(--white);border-radius:5px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.05;text-align:center;transform:rotate(-4deg);letter-spacing:0}
+.mast{display:flex;flex-direction:column;min-width:0}
+.mast .kr{font-family:var(--serif);font-size:12px;letter-spacing:.42em;color:var(--soft)}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:2px 0 0;letter-spacing:-.01em}
 .top .spacer{flex:1}
-.iconbtn{border:2px solid var(--line);background:#fff;border-radius:14px;width:44px;height:44px;display:grid;place-items:center;font-size:20px}
-.iconbtn:hover{border-color:var(--sun)}
+.iconbtn{border:none;background:none;padding:6px 0;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);border-bottom:1px solid var(--faint)}
+.iconbtn:hover{color:var(--ink);border-color:var(--ink)}
+.iconbtn.x{float:right;border:none;font-size:18px;padding:2px 6px;color:var(--ink)}
 
 /* Stats */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.stat{background:var(--card);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);border:2px solid var(--line)}
-.stat b{display:block;font-family:"Baloo 2";font-size:28px;line-height:1.05}
-.stat span{font-size:13px;font-weight:700;color:var(--muted)}
-.stat.a b{color:var(--sky)} .stat.b b{color:var(--berry)} .stat.f b{color:var(--sun-d)}
-@media (max-width:620px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);margin-bottom:22px}
+.stat{min-width:0;padding:14px 8px 12px 0;display:flex;flex-direction:column;gap:2px}
+.stat+.stat{padding-left:14px;border-left:1px solid var(--line)}
+.stat b{font-family:var(--mono);font-weight:500;font-size:clamp(19px,4.6vw,28px);line-height:1.1;letter-spacing:-.03em;white-space:nowrap}
+.stat span{font-size:11.5px;color:var(--soft);line-height:1.25}
+.stat span i{display:block;font-style:normal;font-family:var(--serif);color:var(--faint);font-size:11px;letter-spacing:.2em}
+.stat.b b{color:var(--red)}
 
-/* Tabs + filters */
-.tabs{display:flex;gap:8px;margin-bottom:12px}
-.tab{flex:1;max-width:220px;border:none;background:#fff;border-radius:14px;padding:10px 14px;font-weight:800;box-shadow:var(--shadow);border:2px solid var(--line)}
-.tab[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
-.filters{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.search{flex:1;min-width:180px;border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px 14px;outline:none}
-.search:focus{border-color:var(--sun)}
-select.sort{border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;font-weight:700}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+/* Tabs */
+.tabs{display:flex;gap:22px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tab{border:none;background:none;padding:0 0 10px;font-family:var(--serif);font-weight:500;font-size:17px;color:var(--faint);position:relative;text-align:left;line-height:1.2}
+.tab small{display:block;font-size:10.5px;letter-spacing:.3em;font-weight:400;margin-bottom:2px}
+.tab[aria-selected=true]{color:var(--ink)}
+.tab[aria-selected=true]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--red)}
+
+.filters{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
+.row{display:flex;gap:10px;align-items:center}
+.search{flex:1;min-width:0;border:none;border-bottom:1px solid var(--ink);background:transparent;border-radius:0;padding:8px 0;outline:none}
+.search::placeholder{color:var(--faint)}
+select.sort,select.mini{border:1px solid var(--line);background:var(--paper2);border-radius:3px;padding:7px 8px;font-size:13px;flex:none}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;align-items:center}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;white-space:nowrap}
-.chip[aria-pressed=true]{background:var(--sun);border-color:var(--sun-d)}
-.chip .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0}
+.chip{flex:none;border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;font-size:13px;white-space:nowrap;color:var(--soft)}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--white)}
+.chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
 
-/* Grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
-@media (max-width:420px){.grid{grid-template-columns:repeat(2,1fr);gap:10px}}
-.tile{background:#fff;border-radius:16px;border:2px solid var(--line);box-shadow:var(--shadow);overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .12s}
-.tile:hover{transform:translateY(-3px) rotate(-.5deg)}
-.tile .pic{aspect-ratio:63/88;background:var(--tc,#ddd);position:relative;overflow:hidden}
+/* Grid – photocard binder */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:26px 16px}
+@media (max-width:420px){.grid{grid-template-columns:repeat(2,1fr);gap:22px 12px}}
+.tile{min-width:0;background:none;border:none;text-align:left;padding:0;display:flex;flex-direction:column}
+.tile .pic{aspect-ratio:63/88;background:var(--tc,#ddd);position:relative;overflow:hidden;border-radius:7px;box-shadow:0 1px 0 rgba(22,19,15,.25),0 10px 22px -14px rgba(22,19,15,.55);transition:transform .25s ease}
+.tile:hover .pic{transform:translateY(-4px)}
 .tile .pic img{width:100%;height:100%;object-fit:cover;display:block}
-.tile .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:"Baloo 2";font-weight:800;font-size:44px;color:rgba(255,255,255,.85)}
-.tile .star{position:absolute;top:6px;right:6px;font-size:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
-.tile .qty{position:absolute;top:6px;left:6px;background:var(--ink);color:#fff;border-radius:999px;font-size:12px;font-weight:800;padding:2px 8px}
-.tile .meta{padding:8px 10px 10px}
-.tile .nm{font-weight:800;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tile .sub{font-size:12px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.val{display:inline-block;margin-top:5px;font-size:12px;font-weight:800;background:#eafaf2;color:#13784f;border-radius:999px;padding:2px 8px}
-.badge{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;margin-top:6px;color:#fff}
-.b-a{background:var(--sky)} .b-b{background:var(--berry)} .b-both{background:var(--grape)}
+.tile .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--serif);font-size:44px;color:rgba(255,255,255,.9)}
+.tile .star{position:absolute;top:7px;right:7px;width:26px;height:26px;border-radius:50%;background:var(--red);color:var(--white);font-family:var(--serif);font-weight:700;font-size:13px;display:grid;place-items:center;transform:rotate(8deg)}
+.tile .qty{position:absolute;top:7px;left:7px;background:var(--ink);color:var(--white);border-radius:2px;font-family:var(--mono);font-size:11px;padding:1px 6px}
+.tile .meta{padding:10px 1px 0;border-top:0}
+.tile .nm{font-family:var(--serif);font-weight:700;font-size:15px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .sub{font-family:var(--mono);font-size:10.5px;color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;letter-spacing:-.01em}
+.val{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:11.5px;color:var(--red)}
 
-.empty{text-align:center;padding:40px 16px;color:var(--muted);font-weight:700}
-.empty .big{font-size:52px}
-.note{background:#fff;border:2px dashed var(--sun-d);border-radius:14px;padding:10px 14px;font-weight:700;font-size:14px;margin-bottom:14px}
+.empty{text-align:center;padding:56px 16px;color:var(--soft)}
+.empty .big{font-family:var(--serif);font-size:44px;color:var(--line);line-height:1.2;margin-bottom:8px}
+.note{border-left:2px solid var(--red);padding:8px 12px;font-size:14px;margin:14px 0;background:var(--paper2)}
+.foot{text-align:center;color:var(--faint);font-size:12px;margin-top:28px}
 
-/* FAB */
-.fab{position:fixed;right:18px;bottom:18px;border:none;background:var(--berry);color:#fff;font-family:"Baloo 2";font-weight:800;font-size:18px;padding:14px 20px;border-radius:999px;box-shadow:0 6px 0 #c23a4f,0 12px 24px rgba(0,0,0,.18);z-index:5}
-.fab:active{transform:translateY(3px);box-shadow:0 3px 0 #c23a4f}
+/* Add button */
+.fab{position:fixed;right:18px;bottom:20px;border:none;background:var(--ink);color:var(--white);font-family:var(--sans);font-weight:500;font-size:14.5px;letter-spacing:.02em;padding:13px 20px;border-radius:3px;z-index:5;box-shadow:4px 4px 0 var(--red)}
+.fab:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--red)}
 
-/* Modal */
-.backdrop{position:fixed;inset:0;background:rgba(43,35,64,.5);display:none;align-items:flex-end;justify-content:center;z-index:20}
+/* Sheets */
+.backdrop{position:fixed;inset:0;background:rgba(22,19,15,.55);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .backdrop.open{display:flex}
 @media (min-width:700px){.backdrop{align-items:center}}
-.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:18px 18px 24px}
-@media (min-width:700px){.sheet{border-radius:24px}}
-.sheet h2{font-family:"Baloo 2";font-size:26px;margin:0 0 12px;line-height:1.1}
-.sheet .x{float:right}
-.detail{display:grid;grid-template-columns:200px 1fr;gap:16px}
+.sheet{background:var(--paper);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:10px 10px 0 0;padding:22px 20px 26px;border-top:5px solid transparent;border-image:var(--saek) 1}
+@media (min-width:700px){.sheet{border-radius:4px}}
+.sheet h2{font-family:var(--serif);font-weight:700;font-size:24px;margin:0 0 16px;line-height:1.15}
+.detail{display:grid;grid-template-columns:200px 1fr;gap:20px}
 @media (max-width:520px){.detail{grid-template-columns:1fr}}
-.detail .pic{aspect-ratio:63/88;border-radius:14px;overflow:hidden;background:var(--tc,#ddd);position:relative;max-width:260px;margin:0 auto;width:100%}
+.detail .pic{aspect-ratio:63/88;border-radius:8px;overflow:hidden;background:var(--tc,#ddd);position:relative;max-width:250px;margin:0 auto;width:100%;box-shadow:0 14px 30px -16px rgba(22,19,15,.6)}
 .detail .pic img{width:100%;height:100%;object-fit:cover}
-dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0 0 12px;font-size:15px}
-dt{color:var(--muted);font-weight:700}
-dd{margin:0;font-weight:700}
+dl{display:grid;grid-template-columns:auto 1fr;gap:0;margin:0 0 16px;font-size:14px}
+dt,dd{padding:7px 0;border-bottom:1px solid var(--line);margin:0}
+dt{color:var(--soft);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding-right:16px;padding-top:9px}
 .btns{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 14px;font-weight:800}
-.btn.primary{background:var(--sun);border-color:var(--sun-d)}
-.btn.danger{color:#c23a4f}
-.btn:disabled{opacity:.5;cursor:default}
-form .f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-form label{font-weight:800;font-size:14px}
-form input[type=text],form input[type=password],form input[type=number],form select,form textarea{border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;outline:none;width:100%}
-form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
+.btn{border:1px solid var(--ink);background:transparent;border-radius:3px;padding:9px 14px;font-size:14px;font-weight:500}
+.btn.primary{background:var(--ink);color:var(--white)}
+.btn.danger{border-color:var(--line);color:var(--red)}
+.btn:disabled{opacity:.45;cursor:default}
+form .f{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+form label{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+form input[type=text],form input[type=password],form input[type=number],form select,form textarea{border:1px solid var(--line);background:var(--paper2);border-radius:3px;padding:9px 10px;outline:none;width:100%}
+form input:focus,form select:focus,form textarea:focus{border-color:var(--ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font-weight:800}
-.seg button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
-.drop{border:2px dashed var(--muted);border-radius:14px;padding:14px;text-align:center;font-weight:700;color:var(--muted);background:#fff;cursor:pointer;display:block}
-.drop img{max-height:180px;border-radius:10px;display:block;margin:0 auto 6px}
-.err{color:#c23a4f;font-weight:800;font-size:14px;min-height:1em}
-.hint{color:var(--muted);font-weight:700;font-size:14px;margin:4px 0 0}
-.check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;margin:4px 0 12px}
-
-/* Set checklist */
-.setcard{background:#fff;border:2px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px}
-.setcard h3{font-family:"Baloo 2";font-size:22px;margin:0;line-height:1.1}
-.setcard .code{color:var(--muted);font-weight:800;font-size:13px}
-.big{font-family:"Baloo 2";font-weight:800}
-.prog{display:flex;align-items:baseline;gap:8px;margin:8px 0 6px}
-.prog b{font-family:"Baloo 2";font-size:30px;line-height:1}
-.prog span{color:var(--muted);font-weight:800}
-.bar{height:14px;background:#f1e8d8;border-radius:999px;overflow:hidden}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--sky));border-radius:999px}
-.subprog{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;font-weight:700;color:var(--muted)}
-.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:7px;margin-top:12px}
-.slot{border-radius:12px;aspect-ratio:63/88;position:relative;overflow:hidden;padding:0;text-align:left;border:2px dashed #d9ccb4;background:#fbf6ec;display:flex;flex-direction:column;justify-content:space-between}
-.slot .n{font-family:"Baloo 2";font-weight:800;font-size:15px;padding:4px 6px 0;color:#b3a588}
-.slot .sn{font-size:10.5px;font-weight:700;color:#9a8f7a;padding:0 6px 6px;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
-.slot .rt{position:absolute;top:5px;right:5px;font-size:9.5px;font-weight:800;background:#efe3cf;color:#7a6a4d;border-radius:6px;padding:1px 5px}
-.slot.have{border:2px solid var(--mint);background:#fff}
-.slot.have img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.slot.have .n{position:absolute;left:4px;bottom:4px;background:rgba(43,35,64,.85);color:#fff;border-radius:8px;padding:0 6px;font-size:12px}
-.slot.have .ok{position:absolute;top:4px;right:4px;background:var(--mint);color:#fff;border-radius:999px;width:20px;height:20px;display:grid;place-items:center;font-size:12px;font-weight:900}
-.slot.wish{border-color:var(--grape);background:#f4f0ff}
-.slot.wish .n{color:var(--grape)}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:10px}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}
-.ai{border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;margin-top:8px;background:#eef6ff;border:2px solid #cfe5ff}
-.ai.ok{background:#eafaf2;border-color:#bfead6}.ai.bad{background:#fff1f1;border-color:#f6caca}
+.seg button{border:1px solid var(--line);background:transparent;border-radius:3px;padding:8px 12px;font-size:14px}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.drop{border:1px dashed var(--faint);border-radius:4px;padding:18px;text-align:center;color:var(--soft);background:var(--paper2);cursor:pointer;display:block;font-family:var(--sans)!important;font-size:14px!important;letter-spacing:0!important;text-transform:none!important}
+.drop img{max-height:190px;border-radius:6px;display:block;margin:0 auto 8px}
+.err{color:var(--red);font-size:13.5px;min-height:1em}
+.hint{color:var(--soft);font-size:13.5px;margin:4px 0 0}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 12px;font-family:var(--sans)!important;text-transform:none!important;letter-spacing:0!important}
+.ai{border-left:2px solid var(--blue);padding:9px 12px;font-size:14px;margin-top:10px;background:var(--paper2)}
+.ai.ok{border-color:var(--jade)}.ai.bad{border-color:var(--red)}
 .ai .btn{margin-top:8px}
-.slot .sv{font-size:10px;font-weight:800;color:#13784f;padding:0 6px 4px}
-.slot.have .sv{position:absolute;right:4px;bottom:4px;background:#eafaf2;border-radius:6px;padding:0 4px}
-select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-weight:700;font-size:14px;flex:none}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--ink);color:var(--white);padding:10px 16px;border-radius:3px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30;white-space:nowrap}
 .toast.show{opacity:1}
+
+/* Set checklist – 도감 */
+.setcard{margin-bottom:18px}
+.setcard .code{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.setcard h3{font-family:var(--serif);font-weight:700;font-size:26px;margin:2px 0 0;line-height:1.1}
+.prog{display:flex;align-items:baseline;gap:8px;margin:12px 0 8px}
+.prog b{font-family:var(--mono);font-weight:500;font-size:34px;line-height:1;letter-spacing:-.04em}
+.prog span{color:var(--soft);font-family:var(--mono);font-size:12.5px}
+.bar{height:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--saek);background-size:60px 100%}
+.subprog{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--soft)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--soft);margin-top:10px}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:0}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px;margin-top:14px}
+.slot{border-radius:4px;aspect-ratio:63/88;position:relative;overflow:hidden;padding:0;text-align:left;border:1px solid var(--line);background:var(--paper2);display:flex;flex-direction:column;justify-content:space-between}
+.slot .n{font-family:var(--mono);font-size:12px;padding:5px 6px 0;color:var(--faint)}
+.slot .sn{font-size:10.5px;color:var(--soft);padding:0 6px 5px;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;margin-top:auto}
+.slot .rt{position:absolute;top:5px;right:5px;font-family:var(--mono);font-size:9px;color:var(--red);letter-spacing:.04em}
+.slot .sv{font-family:var(--mono);font-size:9.5px;color:var(--red);padding:0 6px 5px}
+.slot.have{border-color:var(--ink)}
+.slot.have img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slot.have .n{position:absolute;left:0;bottom:0;background:var(--ink);color:var(--white);padding:1px 5px;font-size:10.5px}
+.slot.have .ok{position:absolute;top:4px;right:4px;background:var(--red);color:var(--white);border-radius:50%;width:17px;height:17px;display:grid;place-items:center;font-family:var(--serif);font-size:9px;font-weight:700}
+.slot.have .sv{position:absolute;right:0;bottom:0;background:var(--white);padding:1px 4px;color:var(--ink)}
+.slot.wish{border:1px solid var(--blue);background:#eef1f6}
+.slot.wish .n{color:var(--blue)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
-      <circle cx="32" cy="32" r="29" fill="#ffcf3f" stroke="#2b2340" stroke-width="4"/>
-      <path d="M32 12l5.6 12.4 13.4 1.4-10 9.1 2.9 13.2L32 41.4 20.1 48.1 23 34.9l-10-9.1 13.4-1.4z" fill="#fff" stroke="#2b2340" stroke-width="3" stroke-linejoin="round"/>
-    </svg>
-    <h1 id="title">Samlingen</h1>
+    <div class="seal" aria-hidden="true">수<br>집</div>
+    <div class="mast"><span class="kr" lang="ko">포켓몬 카드 도감</span><h1 id="title">Samlingen</h1></div>
     <div class="spacer"></div>
-    <button class="iconbtn" id="lockBtn" title="Logga in för att ändra" aria-label="Logga in eller inställningar">🔒</button>
+    <button class="iconbtn" id="lockBtn" title="Logga in för att ändra" aria-label="Logga in eller inställningar">Logga in</button>
   </header>
 
   <div id="status" class="note" hidden></div>
 
   <section class="stats" aria-label="Statistik">
-    <div class="stat"><b id="sTotal">0</b><span>kort totalt</span></div>
-    <div class="stat a"><b id="sA">0</b><span>olika kort</span></div>
-    <div class="stat b"><b id="sB">0</b><span>ca värde</span></div>
-    <div class="stat f"><b id="sFav">0</b><span>favoriter ⭐</span></div>
+    <div class="stat"><b id="sTotal">0</b><span>kort totalt<i lang="ko">전체</i></span></div>
+    <div class="stat a"><b id="sA">0</b><span>olika kort<i lang="ko">종류</i></span></div>
+    <div class="stat b"><b id="sB">0</b><span>ca värde<i lang="ko">가치</i></span></div>
+    <div class="stat f"><b id="sFav">0</b><span>favoriter<i lang="ko">찜</i></span></div>
   </section>
 
   <div class="tabs" role="tablist">
-    <button class="tab" role="tab" data-tab="har" aria-selected="true">📚 Samlingen</button>
-    <button class="tab" role="tab" data-tab="onskar" aria-selected="false">✨ Önskelistan</button>
-    <button class="tab" role="tab" data-tab="set" aria-selected="false">📖 Setlista</button>
+    <button class="tab" role="tab" data-tab="har" aria-selected="true"><small lang="ko">수집</small>Samlingen</button>
+    <button class="tab" role="tab" data-tab="onskar" aria-selected="false"><small lang="ko">소원</small>Önskelistan</button>
+    <button class="tab" role="tab" data-tab="set" aria-selected="false"><small lang="ko">도감</small>Setlista</button>
   </div>
 
   <div class="filters">
@@ -196,7 +196,7 @@ select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;pad
   <div class="empty" id="empty" hidden></div>
 </div>
 
-<button class="fab" id="addBtn" hidden>＋ Lägg till kort</button>
+<button class="fab" id="addBtn" hidden>+ Lägg till kort</button>
 
 <!-- Detail -->
 <div class="backdrop" id="slotM"><div class="sheet" role="dialog" aria-modal="true" id="slotBody"></div></div>
@@ -208,7 +208,7 @@ select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;pad
   <form id="cardForm" autocomplete="off">
     <div class="f">
       <label class="drop" id="drop">
-        <span id="dropInner">📷 Tryck för att välja en bild på kortet</span>
+        <span id="dropInner">Fota kortet</span>
         <input type="file" id="file" accept="image/*" hidden>
       </label>
       <div class="ai" id="aiBox" hidden></div>
@@ -228,7 +228,7 @@ select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;pad
     </div>
     <div class="f"><label for="fVal">Värde per kort (kr, ungefär)</label><input type="number" id="fVal" min="0" step="1"></div>
     <div class="f"><label>Har vi det?</label><div class="seg" id="fStatus"></div></div>
-    <div class="f"><label for="fNote">Anteckning</label><textarea id="fNote" rows="2" maxlength="300" placeholder="t.ex. Fick av mormor 🎁"></textarea></div>
+    <div class="f"><label for="fNote">Anteckning</label><textarea id="fNote" rows="2" maxlength="300" placeholder="t.ex. Fick av mormor"></textarea></div>
     <div class="err" id="formErr"></div>
     <div class="btns"><button class="btn primary" type="submit" id="saveBtn">Spara kortet</button><button class="btn" type="button" data-close>Avbryt</button></div>
   </form>
@@ -247,7 +247,7 @@ select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;pad
 <!-- Login -->
 <div class="backdrop" id="loginM"><div class="sheet" role="dialog" aria-modal="true">
   <button class="iconbtn x" data-close>✕</button>
-  <h2>🔒 Logga in</h2>
+  <h2>Logga in</h2>
   <div id="loginBox">
     <form id="loginForm">
       <div class="f"><label for="loginPw">Lösenord</label><input type="password" id="loginPw" autocomplete="current-password" required></div>
@@ -269,7 +269,7 @@ select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;pad
 
 <script>(function(){
 const SB="https://abwmdhvaxqlpyzgvuedj.supabase.co", KEY="sb_publishable_R1OuxhyY7HJq68XcEoFnSw_Zl16Gux9";
-const TYPES=[["Gräs","#4fbf5a"],["Eld","#ff7a3d"],["Vatten","#3c9dff"],["Blixt","#f5c400"],["Psykisk","#b65ce0"],["Kamp","#c46a3a"],["Mörker","#4a4560"],["Metall","#8c9aa8"],["Drake","#c9a227"],["Fe","#ff8fc8"],["Färglös","#b8ae9c"],["Tränare","#2fb3a6"],["Energi","#6d7bff"]];
+const TYPES=[["Gräs","#6f9a6a"],["Eld","#c2342b"],["Vatten","#27457a"],["Blixt","#e0a92e"],["Psykisk","#8a5a8f"],["Kamp","#a8623a"],["Mörker","#2b2622"],["Metall","#8b9197"],["Drake","#b08a3c"],["Fe","#d9909c"],["Färglös","#bdb5a4"],["Tränare","#7fa596"],["Energi","#55608a"]];
 const TC=Object.fromEntries(TYPES);
 const RAR=["Vanlig","Ovanlig","Sällsynt","Holo","Ultra (ex/V/GX)","Illustration","Hemlig/Guld"];
 const $=s=>document.querySelector(s);
@@ -300,7 +300,7 @@ function status(t){const e=$("#status");if(t){e.textContent=t;e.hidden=false}els
 function renderAuth(){
   const on=!!pw;
   $("#addBtn").hidden=!on;
-  $("#lockBtn").textContent=on?"⚙️":"🔒";
+  $("#lockBtn").textContent=on?"Meny":"Logga in";
   $("#lockBtn").title=on?"Inställningar":"Logga in för att ändra";
 }
 function renderStats(){const h=cards.filter(c=>(c.status||"har")==="har");
@@ -310,7 +310,7 @@ function renderStats(){const h=cards.filter(c=>(c.status||"har")==="har");
 function renderChips(){const present=new Set(cards.filter(c=>(c.status||"har")===st.tab).map(c=>c.type).filter(Boolean));
   $("#typeChips").innerHTML=`<button class="chip" data-type="all" aria-pressed="${st.type==="all"}">Alla typer</button>`+
   TYPES.filter(([n])=>present.has(n)||st.type===n).map(([n,c])=>`<button class="chip" data-type="${n}" aria-pressed="${st.type===n}"><span class="dot" style="background:${c}"></span>${n}</button>`).join("")+
-  (cards.some(c=>c.fav)?`<button class="chip" data-type="fav" aria-pressed="${st.type==="fav"}">⭐ Favoriter</button>`:"");}
+  (cards.some(c=>c.fav)?`<button class="chip" data-type="fav" aria-pressed="${st.type==="fav"}">찜 Favoriter</button>`:"");}
 function filtered(){const q=st.q.trim().toLowerCase();let l=cards.filter(c=>(c.status||"har")===st.tab);
   if(st.type==="fav")l=l.filter(c=>c.fav);else if(st.type!=="all")l=l.filter(c=>c.type===st.type);
   if(q)l=l.filter(c=>[c.name,c.set,c.number,c.note,c.type].join(" ").toLowerCase().includes(q));
@@ -320,12 +320,12 @@ function filtered(){const q=st.q.trim().toLowerCase();let l=cards.filter(c=>(c.s
   set:(a,b)=>String(a.set||"").localeCompare(String(b.set||""),"sv")||String(a.number||"").localeCompare(String(b.number||""),"sv",{numeric:true})};
   return l.slice().sort(by[st.sort]);}
 function tile(c){const col=TC[c.type]||"#c9bfae",s=src(c);
-  return `<button class="tile" data-id="${esc(c.id)}" style="--tc:${col}"><div class="pic">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:`<div class="ph">${esc((c.name||"?")[0])}</div>`}${c.fav?'<span class="star">⭐</span>':""}${(Number(c.count)||1)>1?`<span class="qty">×${Number(c.count)}</span>`:""}</div>
+  return `<button class="tile" data-id="${esc(c.id)}" style="--tc:${col}"><div class="pic">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:`<div class="ph">${esc((c.name||"?")[0])}</div>`}${c.fav?'<span class="star" lang="ko" title="Favorit">찜</span>':""}${(Number(c.count)||1)>1?`<span class="qty">×${Number(c.count)}</span>`:""}</div>
   <div class="meta"><div class="nm">${esc(c.name)}</div><div class="sub">${esc([c.set,c.number].filter(Boolean).join(" · ")||c.type||"")}</div>${c.value_sek!=null?`<span class="val">≈ ${esc(kr(c.value_sek))}</span>`:""}</div></button>`;}
 function render(){renderAuth();renderStats();const isSet=st.tab==="set";$("#grid").hidden=isSet;$("#setView").hidden=!isSet;$("#typeChips").hidden=isSet;$("#setChips").hidden=!isSet;$("#sort").hidden=isSet;
   if(isSet){$("#empty").hidden=true;renderSets();return}
   renderChips();const l=filtered();$("#grid").innerHTML=l.map(tile).join("");
-  const e=$("#empty");if(l.length)e.hidden=true;else{e.hidden=false;e.innerHTML=cards.some(c=>(c.status||"har")===st.tab)?'<div class="big">🔍</div>Inga kort matchar filtret.':(st.tab==="har"?'<div class="big">🃏</div>Samlingen är tom.':'<div class="big">✨</div>Inga önskekort ännu.')}}
+  const e=$("#empty");if(l.length)e.hidden=true;else{e.hidden=false;e.innerHTML=cards.some(c=>(c.status||"har")===st.tab)?'<div class="big" lang="ko">없음</div>Inga kort matchar filtret.':(st.tab==="har"?'<div class="big" lang="ko">수집</div>Samlingen är tom.':'<div class="big" lang="ko">소원</div>Inga önskekort ännu.')}}
 
 
 /* ---------- set checklist ---------- */
@@ -337,8 +337,8 @@ function index(){const have={},wish={};cards.forEach(c=>{const k=codeOf(c)+"#"+n
 function renderSets(){
   const {have,wish}=index(),q=st.q.trim().toLowerCase();
   $("#setChips").innerHTML=`<select class="mini" id="setSort" aria-label="Sortera setlistan">${[["num","Nummer"],["value","Mest värd"],["rarity","Sällsyntast"],["name","Namn A–Ö"]].map(([k,l])=>`<option value="${k}"${setSort===k?" selected":""}>${l}</option>`).join("")}</select>`+
-    [["all","Alla"],["have","✅ Har"],["miss","Saknas"],["wish","✨ Önskas"]].map(([k,l])=>`<button class="chip" data-sf="${k}" aria-pressed="${setFilter===k}">${l}</button>`).join("");
-  if(!sets.length){$("#setView").innerHTML='<div class="empty"><div class="big">📖</div>Setlistorna laddas…</div>';return}
+    [["all","Alla"],["have","Har"],["miss","Saknas"],["wish","Önskas"]].map(([k,l])=>`<button class="chip" data-sf="${k}" aria-pressed="${setFilter===k}">${l}</button>`).join("");
+  if(!sets.length){$("#setView").innerHTML='<div class="empty"><div class="big" lang="ko">도감</div>Setlistorna laddas…</div>';return}
   $("#setView").innerHTML=sets.map(S=>{
     const code=S.code.toLowerCase(),list=setCards.filter(x=>x.set_code===S.code);
     const got=list.filter(x=>have[code+"#"+x.number]);
@@ -355,13 +355,13 @@ function renderSets(){
     if(setSort==="rarity")shown=shown.slice().sort((a,b)=>(RR[b.rarity]||0)-(RR[a.rarity]||0)||(kr2(b)??-1)-(kr2(a)??-1)||a.number-b.number);
     if(setSort==="name")shown=shown.slice().sort((a,b)=>a.name.localeCompare(b.name,"sv")||a.number-b.number);
     const slots=shown.map(x=>{const v=kr2(x),vt=v!=null?`<span class="sv">≈${v} kr</span>`:"";const k=code+"#"+x.number,h=have[k],w=wish[k],num=String(x.number).padStart(3,"0");
-      if(h){const c=h[0],s=src(c);return `<button class="slot have" data-card="${esc(c.id)}" title="${esc(x.name)}">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:""}<span class="ok">✓</span><span class="n">${num}</span>${vt}</button>`}
-      return `<button class="slot${w?" wish":""}" data-set="${esc(S.code)}" data-num="${x.number}"><span class="n">${num}${w?" ✨":""}</span>${x.rarity?`<span class="rt">${esc(x.rarity)}</span>`:""}<span class="sn">${esc(x.name)}</span>${vt}</button>`}).join("");
+      if(h){const c=h[0],s=src(c);return `<button class="slot have" data-card="${esc(c.id)}" title="${esc(x.name)}">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:""}<span class="ok">○</span><span class="n">${num}</span>${vt}</button>`}
+      return `<button class="slot${w?" wish":""}" data-set="${esc(S.code)}" data-num="${x.number}"><span class="n">${num}${w?" ·":""}</span>${x.rarity?`<span class="rt">${esc(x.rarity)}</span>`:""}<span class="sn">${esc(x.name)}</span>${vt}</button>`}).join("");
     return `<div class="setcard"><div class="code">${esc(S.code)} · ${S.total} kort</div><h3>${esc(S.name)}</h3>
       <div class="prog"><b>${got.length}</b><span>av ${S.total} · ${pct} %</span></div>
       <div class="bar"><i style="width:${Math.max(pct,got.length?2:0)}%"></i></div>
       <div class="subprog"><span>Huvudset ${gm}/${S.main_count}</span><span>Hemliga ${gs}/${S.total-S.main_count}</span><span>Saknas ${S.total-got.length}</span></div>
-      <div class="legend"><span><i style="background:var(--mint)"></i>Har</span><span><i style="background:#efe3cf"></i>Saknas</span><span><i style="background:var(--grape)"></i>Önskas</span></div>
+      <div class="legend"><span><i style="background:var(--ink)"></i>Har</span><span><i style="background:var(--line)"></i>Saknas</span><span><i style="background:var(--blue)"></i>Önskas</span></div>
       <div class="slots">${slots||'<p class="hint">Inga kort här.</p>'}</div></div>`}).join("")+
     `<p class="hint" style="text-align:center">Kort från andra set (t.ex. Abyss Eye) syns i Samlingen men har ingen setlista än.</p>`;
 }
@@ -374,11 +374,11 @@ $("#setView").addEventListener("click",e=>{const b=e.target.closest(".slot");if(
   const w=index().wish[S.code.toLowerCase()+"#"+x.number];
   const pre={name:x.name,set:S.name+" ("+S.code+")",number:num,rarity:RMAP[x.rarity]||"",note:x.rarity?x.rarity:""};
   $("#slotBody").innerHTML=`<button class="iconbtn x" data-close>✕</button><h2>${esc(x.name)}</h2>
-   <dl><dt>Set</dt><dd>${esc(S.name)} (${esc(S.code)})</dd><dt>Nummer</dt><dd>${esc(num)}</dd>${x.rarity?`<dt>Sällsynthet</dt><dd>${esc(x.rarity)}</dd>`:""}<dt>Status</dt><dd>${w?"✨ På önskelistan":"Saknas ännu"}</dd></dl>
-   ${pw?`<div class="btns"><button class="btn primary" data-sa="have">✅ Vi har det – lägg till</button>${w?"":`<button class="btn" data-sa="wish">✨ Önska oss</button>`}</div>`:'<p class="hint">🔒 Logga in för att lägga till.</p>'}<div class="err" id="slotErr"></div>`;
+   <dl><dt>Set</dt><dd>${esc(S.name)} (${esc(S.code)})</dd><dt>Nummer</dt><dd>${esc(num)}</dd>${x.rarity?`<dt>Sällsynthet</dt><dd>${esc(x.rarity)}</dd>`:""}<dt>Status</dt><dd>${w?"På önskelistan":"Saknas ännu"}</dd></dl>
+   ${pw?`<div class="btns"><button class="btn primary" data-sa="have">Vi har det – lägg till</button>${w?"":`<button class="btn" data-sa="wish">Önska oss</button>`}</div>`:'<p class="hint">Logga in för att lägga till.</p>'}<div class="err" id="slotErr"></div>`;
   $("#slotBody").onclick=async ev=>{const a=ev.target.closest("[data-sa]");if(!a)return;
     if(a.dataset.sa==="have"){$("#slotM").classList.remove("open");openForm(null,Object.assign({status:"har"},pre));return}
-    a.disabled=true;try{await rpc("pokemon_save_card",{pw,card:Object.assign({status:"onskar"},pre)});$("#slotM").classList.remove("open");toast("Tillagt på önskelistan ✨");await load()}
+    a.disabled=true;try{await rpc("pokemon_save_card",{pw,card:Object.assign({status:"onskar"},pre)});$("#slotM").classList.remove("open");toast("Tillagt på önskelistan");await load()}
     catch(err){$("#slotErr").textContent=pwErr(err);a.disabled=false}};
   open("#slotM");
 });
@@ -403,15 +403,15 @@ function openDetail(id){const c=cards.find(x=>x.id===id);if(!c)return;const col=
   <div class="detail"><div class="pic" style="--tc:${col}">${s?`<img alt="${esc(c.name)}" src="${esc(s)}">`:""}</div>
   <div><dl>${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
   ${pw?`<div class="btns"><button class="btn" data-act="fav">${c.fav?"★ Ta bort favorit":"☆ Favorit"}</button>
-  ${c.status==="onskar"?'<button class="btn primary" data-act="got">🎉 Vi fick det!</button>':""}
-  <button class="btn" data-act="edit">✏️ Ändra</button><button class="btn danger" data-act="del">🗑 Ta bort</button></div>`:
-  `<p class="hint">🔒 Logga in för att ändra.</p>`}<div class="err" id="dErr"></div></div></div>`;
+  ${c.status==="onskar"?'<button class="btn primary" data-act="got">Vi fick det!</button>':""}
+  <button class="btn" data-act="edit">Ändra</button><button class="btn danger" data-act="del">Ta bort</button></div>`:
+  `<p class="hint">Logga in för att ändra.</p>`}<div class="err" id="dErr"></div></div></div>`;
   $("#detailBody").dataset.id=id;open("#detailM");}
 $("#detailBody").addEventListener("click",async e=>{const b=e.target.closest("[data-act]");if(!b)return;
   const id=$("#detailBody").dataset.id,c=cards.find(x=>x.id===id);if(!c)return;const act=b.dataset.act;
   try{
     if(act==="fav"){b.disabled=true;await rpc("pokemon_save_card",{pw,card:{id,fav:!c.fav}});await load()}
-    else if(act==="got"){b.disabled=true;await rpc("pokemon_save_card",{pw,card:{id,status:"har",added_at:new Date().toISOString()}});close("#detailM");toast("Grattis till nya kortet! 🎉");await load()}
+    else if(act==="got"){b.disabled=true;await rpc("pokemon_save_card",{pw,card:{id,status:"har",added_at:new Date().toISOString()}});close("#detailM");toast("Grattis till nya kortet!");await load()}
     else if(act==="edit"){close("#detailM");openForm(c)}
     else if(act==="del"){if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Säker? Tryck igen";return}
       b.disabled=true;await rpc("pokemon_delete_card",{pw,card_id:id});close("#detailM");toast("Kortet togs bort");await load()}
@@ -427,10 +427,10 @@ function openForm(c,pre){editing=c||null;pendingImg=null;const d=c||pre||null;
   $("#formTitle").textContent=c?"Ändra kort":"Nytt kort";
   $("#fName").value=d?.name||"";$("#fType").value=d?.type||"";$("#fHp").value=d?.hp??"";$("#fSet").value=d?.set||"";$("#fNum").value=d?.number||"";
   $("#fRar").value=d?.rarity||"";$("#fCount").value=d?.count||1;$("#fVal").value=d?.value_sek??"";$("#fNote").value=d?.note||"";
-  seg($("#fStatus"),[["har","✅ Vi har det"],["onskar","✨ Önskar oss"]],d?.status||(st.tab==="set"?"har":st.tab));
-  const s=c?src(c):"";$("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:"📷 Tryck för att ta eller välja en bild";
+  seg($("#fStatus"),[["har","Vi har det"],["onskar","Önskar oss"]],d?.status||(st.tab==="set"?"har":st.tab));
+  const s=c?src(c):"";$("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:"Tryck för att ta eller välja en bild";
   $("#formErr").textContent="";$("#file").value="";aiData=null;$("#aiBox").hidden=true;
-  $("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:(c?"📷 Tryck för att ta eller välja en bild":"📷 Fota kortet – Claude fyller i resten");open("#formM");}
+  $("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:(c?"Tryck för att ta eller välja en bild":"Fota kortet – Claude fyller i resten");open("#formM");}
 function loadImg(file){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file)})}
 function toJpeg(img,box,max,limit){const W=img.naturalWidth||img.width,H=img.naturalHeight||img.height;
   let sx=0,sy=0,sw=W,sh=H;if(box){const m=.015;sx=Math.max(0,(box.x0-m)*W);sy=Math.max(0,(box.y0-m)*H);sw=Math.min(W,(box.x1+m)*W)-sx;sh=Math.min(H,(box.y1+m)*H)-sy}
@@ -441,7 +441,7 @@ $("#file").addEventListener("change",async()=>{const f=$("#file").files[0];if(!f
   let img;try{img=await loadImg(f)}catch(_){$("#formErr").textContent="Kunde inte läsa bilden.";return}
   pendingImg=toJpeg(img,null,700,550000);$("#dropInner").innerHTML=`<img src="${pendingImg}" alt="">Bild vald ✓`;
   if(editing)return;
-  const sb=$("#saveBtn");sb.disabled=true;ai("🔍 Claude tittar på kortet …");
+  const sb=$("#saveBtn");sb.disabled=true;ai("Claude tittar på kortet …");
   try{
     const r=await fetch(SB+"/functions/v1/pokemon-identify",{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify({pw,bild:toJpeg(img,null,1400,3500000)})});
     const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.fel||"Kunde inte känna igen kortet");
@@ -451,9 +451,9 @@ $("#file").addEventListener("change",async()=>{const f=$("#file").files[0];if(!f
     if(d.ruta&&d.ruta.x1-d.ruta.x0>.2&&d.ruta.y1-d.ruta.y0>.2){pendingImg=toJpeg(img,d.ruta,700,550000);$("#dropInner").innerHTML=`<img src="${pendingImg}" alt="">Beskuren ✓ – tryck för att byta bild`}
     const dup=cards.find(c=>(c.status||"har")==="har"&&codeOf(c)&&codeOf(c)===codeOf({set:d.set})&&numOf(c)!=null&&numOf(c)===numOf({number:d.number}));
     const osaker=d.sakerhet<.6?`<br><span style="color:#b26b00">Claude är lite osäker – kolla gärna namn och nummer.</span>`:"";
-    ai(`✅ <b>${esc(d.name||"Okänt kort")}</b>${d.number?" · "+esc(d.number):""}${d.set?" · "+esc(d.set):""}${d.value_sek!=null?" · ≈ "+esc(kr(d.value_sek)):""}${d.kommentar?`<br>${esc(d.kommentar)}`:""}${osaker}
-      ${dup?`<br>Ni har redan det här kortet (×${Number(dup.count)||1}).<br><button type="button" class="btn primary" id="dupBtn" data-id="${esc(dup.id)}" data-n="${(Number(dup.count)||1)+1}">➕ Öka till ×${(Number(dup.count)||1)+1}</button>`:"<br>Kolla uppgifterna och tryck Spara."}`,"ok");
-  }catch(err){ai("😕 "+esc(err.message||"Kunde inte känna igen kortet")+" – fyll i själv, eller prova en bild med mindre reflexer.","bad")}
+    ai(`<b>${esc(d.name||"Okänt kort")}</b>${d.number?" · "+esc(d.number):""}${d.set?" · "+esc(d.set):""}${d.value_sek!=null?" · ≈ "+esc(kr(d.value_sek)):""}${d.kommentar?`<br>${esc(d.kommentar)}`:""}${osaker}
+      ${dup?`<br>Ni har redan det här kortet (×${Number(dup.count)||1}).<br><button type="button" class="btn primary" id="dupBtn" data-id="${esc(dup.id)}" data-n="${(Number(dup.count)||1)+1}">Öka till ×${(Number(dup.count)||1)+1}</button>`:"<br>Kolla uppgifterna och tryck Spara."}`,"ok");
+  }catch(err){ai(esc(err.message||"Kunde inte känna igen kortet")+" – fyll i själv, eller prova en bild med mindre reflexer.","bad")}
   finally{sb.disabled=false}
 });
 $("#aiBox").addEventListener("click",async e=>{const b=e.target.closest("#dupBtn");if(!b)return;b.disabled=true;
@@ -474,7 +474,7 @@ $("#cardForm").addEventListener("submit",async e=>{e.preventDefault();
     if(editing){card.id=editing.id;if(String(val)!==String(editing.value_sek??"")){card.value_source=val===""?"":"Eget värde";card.value_usd=""}}
     else if(val!==""){if(aiData&&String(aiData.value_sek)===String(val)){card.value_source=aiData.value_source||"";card.value_usd=aiData.value_usd??""}else card.value_source="Eget värde"}
     await rpc("pokemon_save_card",{pw,card});
-    close("#formM");toast(editing?"Ändringen sparades":"Kortet lades till! 🃏");
+    close("#formM");toast(editing?"Ändringen sparades":"Kortet lades till");
     if(!editing&&st.tab!==card.status){st.tab=card.status;syncTabs()}
     await load();
   }catch(err){$("#formErr").textContent=pwErr(err)}
@@ -490,11 +490,11 @@ $("#lockBtn").addEventListener("click",async()=>{
 });
 $("#loginForm").addEventListener("submit",async e=>{e.preventDefault();const p=$("#loginPw").value;const b=$("#loginBtn");b.disabled=true;
   try{await rpc("pokemon_login",{pw:p});pw=p;try{($("#remember").checked?localStorage:sessionStorage).setItem("pkpw",p)}catch(_){}
-    close("#loginM");toast("Inloggad – nu kan du ändra ✏️");render()}
+    close("#loginM");toast("Inloggad – nu kan du ändra");render()}
   catch(err){$("#loginErr").textContent=err.message||"Fel lösenord"}finally{b.disabled=false}});
 $("#setupForm").addEventListener("submit",async e=>{e.preventDefault();const code=$("#setupCode").value.trim(),p=$("#setupPw").value;
   try{await rpc("pokemon_set_password",{old_pw:code,new_pw:p});pw=p;try{localStorage.setItem("pkpw",p)}catch(_){}
-    close("#loginM");toast("Lösenordet är sparat 🔒");render()}catch(err){$("#loginErr").textContent=err.message}});
+    close("#loginM");toast("Lösenordet är sparat");render()}catch(err){$("#loginErr").textContent=err.message}});
 $("#pwForm").addEventListener("submit",async e=>{e.preventDefault();const o=$("#oldPw").value,n=$("#newPw").value;
   try{await rpc("pokemon_set_password",{old_pw:o,new_pw:n});pw=n;try{if(localStorage.getItem("pkpw"))localStorage.setItem("pkpw",n);else sessionStorage.setItem("pkpw",n)}catch(_){}
     close("#setM");toast("Nytt lösenord sparat")}catch(err){$("#setErr").textContent=err.message}});
