@@ -14,6 +14,7 @@
   --radius:18px; --shadow:0 6px 0 rgba(43,35,64,.08), 0 10px 24px rgba(43,35,64,.08);
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0}
 body{font-family:Nunito,system-ui,sans-serif;color:var(--ink);background:var(--bg);
   background-image:radial-gradient(circle at 12px 12px, rgba(255,207,63,.25) 2px, transparent 2.5px);
@@ -112,6 +113,31 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
 .err{color:#c23a4f;font-weight:800;font-size:14px;min-height:1em}
 .hint{color:var(--muted);font-weight:700;font-size:14px;margin:4px 0 0}
 .check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;margin:4px 0 12px}
+
+/* Set checklist */
+.setcard{background:#fff;border:2px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px}
+.setcard h3{font-family:"Baloo 2";font-size:22px;margin:0;line-height:1.1}
+.setcard .code{color:var(--muted);font-weight:800;font-size:13px}
+.big{font-family:"Baloo 2";font-weight:800}
+.prog{display:flex;align-items:baseline;gap:8px;margin:8px 0 6px}
+.prog b{font-family:"Baloo 2";font-size:30px;line-height:1}
+.prog span{color:var(--muted);font-weight:800}
+.bar{height:14px;background:#f1e8d8;border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--sky));border-radius:999px}
+.subprog{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:7px;margin-top:12px}
+.slot{border-radius:12px;aspect-ratio:63/88;position:relative;overflow:hidden;padding:0;text-align:left;border:2px dashed #d9ccb4;background:#fbf6ec;display:flex;flex-direction:column;justify-content:space-between}
+.slot .n{font-family:"Baloo 2";font-weight:800;font-size:15px;padding:4px 6px 0;color:#b3a588}
+.slot .sn{font-size:10.5px;font-weight:700;color:#9a8f7a;padding:0 6px 6px;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.slot .rt{position:absolute;top:5px;right:5px;font-size:9.5px;font-weight:800;background:#efe3cf;color:#7a6a4d;border-radius:6px;padding:1px 5px}
+.slot.have{border:2px solid var(--mint);background:#fff}
+.slot.have img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slot.have .n{position:absolute;left:4px;bottom:4px;background:rgba(43,35,64,.85);color:#fff;border-radius:8px;padding:0 6px;font-size:12px}
+.slot.have .ok{position:absolute;top:4px;right:4px;background:var(--mint);color:#fff;border-radius:999px;width:20px;height:20px;display:grid;place-items:center;font-size:12px;font-weight:900}
+.slot.wish{border-color:var(--grape);background:#f4f0ff}
+.slot.wish .n{color:var(--grape)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
 .toast.show{opacity:1}
 </style>
@@ -140,6 +166,7 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="har" aria-selected="true">📚 Samlingen</button>
     <button class="tab" role="tab" data-tab="onskar" aria-selected="false">✨ Önskelistan</button>
+    <button class="tab" role="tab" data-tab="set" aria-selected="false">📖 Setlista</button>
   </div>
 
   <div class="filters">
@@ -155,15 +182,18 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
       </select>
     </div>
     <div class="chips" id="typeChips"></div>
+    <div class="chips" id="setChips" hidden></div>
   </div>
 
   <div class="grid" id="grid"></div>
+  <div id="setView" hidden></div>
   <div class="empty" id="empty" hidden></div>
 </div>
 
 <button class="fab" id="addBtn" hidden>＋ Lägg till kort</button>
 
 <!-- Detail -->
+<div class="backdrop" id="slotM"><div class="sheet" role="dialog" aria-modal="true" id="slotBody"></div></div>
 <div class="backdrop" id="detailM"><div class="sheet" role="dialog" aria-modal="true" id="detailBody"></div></div>
 <!-- Form -->
 <div class="backdrop" id="formM"><div class="sheet" role="dialog" aria-modal="true">
@@ -237,7 +267,7 @@ const TC=Object.fromEntries(TYPES);
 const RAR=["Vanlig","Ovanlig","Sällsynt","Holo","Ultra (ex/V/GX)","Illustration","Hemlig/Guld"];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let cards=[], imgs={}, st={tab:"har",type:"all",q:"",sort:"value"}, editing=null, pendingImg=null;
+let sets=[], setCards=[], setFilter="all", cards=[], imgs={}, st={tab:"har",type:"all",q:"",sort:"value"}, editing=null, pendingImg=null;
 let pw=null; try{pw=sessionStorage.getItem("pkpw")||localStorage.getItem("pkpw")}catch(_){}
 
 /* ---------- API ---------- */
@@ -285,15 +315,66 @@ function filtered(){const q=st.q.trim().toLowerCase();let l=cards.filter(c=>(c.s
 function tile(c){const col=TC[c.type]||"#c9bfae",s=src(c);
   return `<button class="tile" data-id="${esc(c.id)}" style="--tc:${col}"><div class="pic">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:`<div class="ph">${esc((c.name||"?")[0])}</div>`}${c.fav?'<span class="star">⭐</span>':""}${(Number(c.count)||1)>1?`<span class="qty">×${Number(c.count)}</span>`:""}</div>
   <div class="meta"><div class="nm">${esc(c.name)}</div><div class="sub">${esc([c.set,c.number].filter(Boolean).join(" · ")||c.type||"")}</div>${c.value_sek!=null?`<span class="val">≈ ${esc(kr(c.value_sek))}</span>`:""}</div></button>`;}
-function render(){renderAuth();renderStats();renderChips();const l=filtered();$("#grid").innerHTML=l.map(tile).join("");
+function render(){renderAuth();renderStats();const isSet=st.tab==="set";$("#grid").hidden=isSet;$("#setView").hidden=!isSet;$("#typeChips").hidden=isSet;$("#setChips").hidden=!isSet;$("#sort").hidden=isSet;
+  if(isSet){$("#empty").hidden=true;renderSets();return}
+  renderChips();const l=filtered();$("#grid").innerHTML=l.map(tile).join("");
   const e=$("#empty");if(l.length)e.hidden=true;else{e.hidden=false;e.innerHTML=cards.some(c=>(c.status||"har")===st.tab)?'<div class="big">🔍</div>Inga kort matchar filtret.':(st.tab==="har"?'<div class="big">🃏</div>Samlingen är tom.':'<div class="big">✨</div>Inga önskekort ännu.')}}
 
+
+/* ---------- set checklist ---------- */
+const RMAP={RR:"Ultra (ex/V/GX)",AR:"Illustration",SR:"Hemlig/Guld",MA:"Hemlig/Guld",SAR:"Hemlig/Guld",MUR:"Hemlig/Guld",UR:"Hemlig/Guld"};
+function codeOf(c){const m=/\(([^)]+)\)\s*$/.exec(c.set||"");return m?m[1].trim().toLowerCase():""}
+function numOf(c){const n=parseInt(String(c.number||""),10);return isNaN(n)?null:n}
+function index(){const have={},wish={};cards.forEach(c=>{const k=codeOf(c)+"#"+numOf(c);if(numOf(c)==null)return;
+  if((c.status||"har")==="har"){(have[k]=have[k]||[]).push(c)}else{(wish[k]=wish[k]||[]).push(c)}});return{have,wish}}
+function renderSets(){
+  const {have,wish}=index(),q=st.q.trim().toLowerCase();
+  $("#setChips").innerHTML=[["all","Alla"],["have","✅ Har"],["miss","Saknas"],["wish","✨ Önskas"]].map(([k,l])=>`<button class="chip" data-sf="${k}" aria-pressed="${setFilter===k}">${l}</button>`).join("");
+  if(!sets.length){$("#setView").innerHTML='<div class="empty"><div class="big">📖</div>Setlistorna laddas…</div>';return}
+  $("#setView").innerHTML=sets.map(S=>{
+    const code=S.code.toLowerCase(),list=setCards.filter(x=>x.set_code===S.code);
+    const got=list.filter(x=>have[code+"#"+x.number]);
+    const gm=got.filter(x=>x.number<=S.main_count).length,gs=got.length-gm;
+    const pct=Math.round(100*got.length/S.total);
+    let shown=list;
+    if(setFilter==="have")shown=shown.filter(x=>have[code+"#"+x.number]);
+    if(setFilter==="miss")shown=shown.filter(x=>!have[code+"#"+x.number]);
+    if(setFilter==="wish")shown=shown.filter(x=>wish[code+"#"+x.number]&&!have[code+"#"+x.number]);
+    if(q)shown=shown.filter(x=>(x.name+" "+x.number).toLowerCase().includes(q));
+    const slots=shown.map(x=>{const k=code+"#"+x.number,h=have[k],w=wish[k],num=String(x.number).padStart(3,"0");
+      if(h){const c=h[0],s=src(c);return `<button class="slot have" data-card="${esc(c.id)}" title="${esc(x.name)}">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:""}<span class="ok">✓</span><span class="n">${num}</span></button>`}
+      return `<button class="slot${w?" wish":""}" data-set="${esc(S.code)}" data-num="${x.number}"><span class="n">${num}${w?" ✨":""}</span>${x.rarity?`<span class="rt">${esc(x.rarity)}</span>`:""}<span class="sn">${esc(x.name)}</span></button>`}).join("");
+    return `<div class="setcard"><div class="code">${esc(S.code)} · ${S.total} kort</div><h3>${esc(S.name)}</h3>
+      <div class="prog"><b>${got.length}</b><span>av ${S.total} · ${pct} %</span></div>
+      <div class="bar"><i style="width:${Math.max(pct,got.length?2:0)}%"></i></div>
+      <div class="subprog"><span>Huvudset ${gm}/${S.main_count}</span><span>Hemliga ${gs}/${S.total-S.main_count}</span><span>Saknas ${S.total-got.length}</span></div>
+      <div class="legend"><span><i style="background:var(--mint)"></i>Har</span><span><i style="background:#efe3cf"></i>Saknas</span><span><i style="background:var(--grape)"></i>Önskas</span></div>
+      <div class="slots">${slots||'<p class="hint">Inga kort här.</p>'}</div></div>`}).join("")+
+    `<p class="hint" style="text-align:center">Kort från andra set (t.ex. Abyss Eye) syns i Samlingen men har ingen setlista än.</p>`;
+}
+$("#setChips").addEventListener("click",e=>{const b=e.target.closest("[data-sf]");if(b){setFilter=b.dataset.sf;render()}});
+$("#setView").addEventListener("click",e=>{const b=e.target.closest(".slot");if(!b)return;
+  if(b.dataset.card){openDetail(b.dataset.card);return}
+  const S=sets.find(x=>x.code===b.dataset.set),x=setCards.find(y=>y.set_code===b.dataset.set&&y.number===Number(b.dataset.num));if(!S||!x)return;
+  const num=String(x.number).padStart(3,"0")+"/"+String(S.main_count).padStart(3,"0");
+  const w=index().wish[S.code.toLowerCase()+"#"+x.number];
+  const pre={name:x.name,set:S.name+" ("+S.code+")",number:num,rarity:RMAP[x.rarity]||"",note:x.rarity?x.rarity:""};
+  $("#slotBody").innerHTML=`<button class="iconbtn x" data-close>✕</button><h2>${esc(x.name)}</h2>
+   <dl><dt>Set</dt><dd>${esc(S.name)} (${esc(S.code)})</dd><dt>Nummer</dt><dd>${esc(num)}</dd>${x.rarity?`<dt>Sällsynthet</dt><dd>${esc(x.rarity)}</dd>`:""}<dt>Status</dt><dd>${w?"✨ På önskelistan":"Saknas ännu"}</dd></dl>
+   ${pw?`<div class="btns"><button class="btn primary" data-sa="have">✅ Vi har det – lägg till</button>${w?"":`<button class="btn" data-sa="wish">✨ Önska oss</button>`}</div>`:'<p class="hint">🔒 Logga in för att lägga till.</p>'}<div class="err" id="slotErr"></div>`;
+  $("#slotBody").onclick=async ev=>{const a=ev.target.closest("[data-sa]");if(!a)return;
+    if(a.dataset.sa==="have"){$("#slotM").classList.remove("open");openForm(null,Object.assign({status:"har"},pre));return}
+    a.disabled=true;try{await rpc("pokemon_save_card",{pw,card:Object.assign({status:"onskar"},pre)});$("#slotM").classList.remove("open");toast("Tillagt på önskelistan ✨");await load()}
+    catch(err){$("#slotErr").textContent=pwErr(err);a.disabled=false}};
+  open("#slotM");
+});
 /* ---------- data ---------- */
 async function load(){
   try{
     const rows=await rest("pokemon_cards?select=*&order=added_at.desc");
     const need=rows.filter(c=>c.img&&c.img.startsWith("db:")).map(c=>c.img.slice(3)).filter(id=>!imgs[id]);
     if(need.length){const im=await rest("pokemon_images?select=id,data&id=in.("+need.join(",")+")");im.forEach(i=>imgs[i.id]=i.data)}
+    if(!sets.length){try{sets=await rest("pokemon_sets?select=*&order=code");setCards=await rest("pokemon_set_cards?select=*&order=set_code,number")}catch(_){}}
     cards=rows;status("");render();
     const id=$("#detailBody").dataset.id;if(id&&$("#detailM").classList.contains("open")){if(cards.some(c=>c.id===id))openDetail(id);else close("#detailM")}
   }catch(e){status("Kunde inte ladda samlingen just nu. Försök igen om en stund.")}
@@ -328,11 +409,11 @@ $("#fType").innerHTML='<option value="">—</option>'+TYPES.map(([n])=>`<option>
 $("#fRar").innerHTML='<option value="">—</option>'+RAR.map(r=>`<option>${r}</option>`).join("");
 function seg(el,opts,val){el.innerHTML=opts.map(([k,l])=>`<button type="button" data-v="${k}" aria-pressed="${k===val}">${esc(l)}</button>`).join("");el.dataset.v=val}
 document.addEventListener("click",e=>{const b=e.target.closest(".seg button");if(!b)return;const s=b.parentElement;s.dataset.v=b.dataset.v;[...s.children].forEach(x=>x.setAttribute("aria-pressed",x===b))});
-function openForm(c){editing=c||null;pendingImg=null;
+function openForm(c,pre){editing=c||null;pendingImg=null;const d=c||pre||null;
   $("#formTitle").textContent=c?"Ändra kort":"Nytt kort";
-  $("#fName").value=c?.name||"";$("#fType").value=c?.type||"";$("#fHp").value=c?.hp??"";$("#fSet").value=c?.set||"";$("#fNum").value=c?.number||"";
-  $("#fRar").value=c?.rarity||"";$("#fCount").value=c?.count||1;$("#fVal").value=c?.value_sek??"";$("#fNote").value=c?.note||"";
-  seg($("#fStatus"),[["har","✅ Vi har det"],["onskar","✨ Önskar oss"]],c?.status||st.tab);
+  $("#fName").value=d?.name||"";$("#fType").value=d?.type||"";$("#fHp").value=d?.hp??"";$("#fSet").value=d?.set||"";$("#fNum").value=d?.number||"";
+  $("#fRar").value=d?.rarity||"";$("#fCount").value=d?.count||1;$("#fVal").value=d?.value_sek??"";$("#fNote").value=d?.note||"";
+  seg($("#fStatus"),[["har","✅ Vi har det"],["onskar","✨ Önskar oss"]],d?.status||(st.tab==="set"?"har":st.tab));
   const s=c?src(c):"";$("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:"📷 Tryck för att ta eller välja en bild";
   $("#formErr").textContent="";$("#file").value="";open("#formM");}
 $("#file").addEventListener("change",async()=>{const f=$("#file").files[0];if(!f)return;
