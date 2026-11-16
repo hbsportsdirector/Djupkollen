@@ -138,6 +138,12 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
 .slot.wish .n{color:var(--grape)}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:10px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}
+.ai{border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;margin-top:8px;background:#eef6ff;border:2px solid #cfe5ff}
+.ai.ok{background:#eafaf2;border-color:#bfead6}.ai.bad{background:#fff1f1;border-color:#f6caca}
+.ai .btn{margin-top:8px}
+.slot .sv{font-size:10px;font-weight:800;color:#13784f;padding:0 6px 4px}
+.slot.have .sv{position:absolute;right:4px;bottom:4px;background:#eafaf2;border-radius:6px;padding:0 4px}
+select.mini{border:2px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-weight:700;font-size:14px;flex:none}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
 .toast.show{opacity:1}
 </style>
@@ -205,6 +211,7 @@ form input:focus,form select:focus,form textarea:focus{border-color:var(--sun)}
         <span id="dropInner">📷 Tryck för att välja en bild på kortet</span>
         <input type="file" id="file" accept="image/*" hidden>
       </label>
+      <div class="ai" id="aiBox" hidden></div>
     </div>
     <div class="f"><label for="fName">Namn *</label><input type="text" id="fName" required maxlength="60" placeholder="t.ex. Pikachu"></div>
     <div class="two">
@@ -267,7 +274,7 @@ const TC=Object.fromEntries(TYPES);
 const RAR=["Vanlig","Ovanlig","Sällsynt","Holo","Ultra (ex/V/GX)","Illustration","Hemlig/Guld"];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let sets=[], setCards=[], setFilter="all", cards=[], imgs={}, st={tab:"har",type:"all",q:"",sort:"value"}, editing=null, pendingImg=null;
+let sets=[], setCards=[], setFilter="all", setSort="num", aiData=null, cards=[], imgs={}, st={tab:"har",type:"all",q:"",sort:"value"}, editing=null, pendingImg=null;
 let pw=null; try{pw=sessionStorage.getItem("pkpw")||localStorage.getItem("pkpw")}catch(_){}
 
 /* ---------- API ---------- */
@@ -329,7 +336,8 @@ function index(){const have={},wish={};cards.forEach(c=>{const k=codeOf(c)+"#"+n
   if((c.status||"har")==="har"){(have[k]=have[k]||[]).push(c)}else{(wish[k]=wish[k]||[]).push(c)}});return{have,wish}}
 function renderSets(){
   const {have,wish}=index(),q=st.q.trim().toLowerCase();
-  $("#setChips").innerHTML=[["all","Alla"],["have","✅ Har"],["miss","Saknas"],["wish","✨ Önskas"]].map(([k,l])=>`<button class="chip" data-sf="${k}" aria-pressed="${setFilter===k}">${l}</button>`).join("");
+  $("#setChips").innerHTML=`<select class="mini" id="setSort" aria-label="Sortera setlistan">${[["num","Nummer"],["value","Mest värd"],["rarity","Sällsyntast"],["name","Namn A–Ö"]].map(([k,l])=>`<option value="${k}"${setSort===k?" selected":""}>${l}</option>`).join("")}</select>`+
+    [["all","Alla"],["have","✅ Har"],["miss","Saknas"],["wish","✨ Önskas"]].map(([k,l])=>`<button class="chip" data-sf="${k}" aria-pressed="${setFilter===k}">${l}</button>`).join("");
   if(!sets.length){$("#setView").innerHTML='<div class="empty"><div class="big">📖</div>Setlistorna laddas…</div>';return}
   $("#setView").innerHTML=sets.map(S=>{
     const code=S.code.toLowerCase(),list=setCards.filter(x=>x.set_code===S.code);
@@ -341,9 +349,14 @@ function renderSets(){
     if(setFilter==="miss")shown=shown.filter(x=>!have[code+"#"+x.number]);
     if(setFilter==="wish")shown=shown.filter(x=>wish[code+"#"+x.number]&&!have[code+"#"+x.number]);
     if(q)shown=shown.filter(x=>(x.name+" "+x.number).toLowerCase().includes(q));
-    const slots=shown.map(x=>{const k=code+"#"+x.number,h=have[k],w=wish[k],num=String(x.number).padStart(3,"0");
-      if(h){const c=h[0],s=src(c);return `<button class="slot have" data-card="${esc(c.id)}" title="${esc(x.name)}">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:""}<span class="ok">✓</span><span class="n">${num}</span></button>`}
-      return `<button class="slot${w?" wish":""}" data-set="${esc(S.code)}" data-num="${x.number}"><span class="n">${num}${w?" ✨":""}</span>${x.rarity?`<span class="rt">${esc(x.rarity)}</span>`:""}<span class="sn">${esc(x.name)}</span></button>`}).join("");
+    const kurs=Number(S.usd_sek)||9.6,kr2=x=>x.value_usd!=null?Math.round(x.value_usd*kurs):null;
+    const RR={MUR:7,SAR:6,MA:5,SR:4,AR:3,RR:2};
+    if(setSort==="value")shown=shown.slice().sort((a,b)=>(kr2(b)??-1)-(kr2(a)??-1)||a.number-b.number);
+    if(setSort==="rarity")shown=shown.slice().sort((a,b)=>(RR[b.rarity]||0)-(RR[a.rarity]||0)||(kr2(b)??-1)-(kr2(a)??-1)||a.number-b.number);
+    if(setSort==="name")shown=shown.slice().sort((a,b)=>a.name.localeCompare(b.name,"sv")||a.number-b.number);
+    const slots=shown.map(x=>{const v=kr2(x),vt=v!=null?`<span class="sv">≈${v} kr</span>`:"";const k=code+"#"+x.number,h=have[k],w=wish[k],num=String(x.number).padStart(3,"0");
+      if(h){const c=h[0],s=src(c);return `<button class="slot have" data-card="${esc(c.id)}" title="${esc(x.name)}">${s?`<img loading="lazy" alt="" src="${esc(s)}">`:""}<span class="ok">✓</span><span class="n">${num}</span>${vt}</button>`}
+      return `<button class="slot${w?" wish":""}" data-set="${esc(S.code)}" data-num="${x.number}"><span class="n">${num}${w?" ✨":""}</span>${x.rarity?`<span class="rt">${esc(x.rarity)}</span>`:""}<span class="sn">${esc(x.name)}</span>${vt}</button>`}).join("");
     return `<div class="setcard"><div class="code">${esc(S.code)} · ${S.total} kort</div><h3>${esc(S.name)}</h3>
       <div class="prog"><b>${got.length}</b><span>av ${S.total} · ${pct} %</span></div>
       <div class="bar"><i style="width:${Math.max(pct,got.length?2:0)}%"></i></div>
@@ -353,6 +366,7 @@ function renderSets(){
     `<p class="hint" style="text-align:center">Kort från andra set (t.ex. Abyss Eye) syns i Samlingen men har ingen setlista än.</p>`;
 }
 $("#setChips").addEventListener("click",e=>{const b=e.target.closest("[data-sf]");if(b){setFilter=b.dataset.sf;render()}});
+$("#setChips").addEventListener("change",e=>{if(e.target.id==="setSort"){setSort=e.target.value;render()}});
 $("#setView").addEventListener("click",e=>{const b=e.target.closest(".slot");if(!b)return;
   if(b.dataset.card){openDetail(b.dataset.card);return}
   const S=sets.find(x=>x.code===b.dataset.set),x=setCards.find(y=>y.set_code===b.dataset.set&&y.number===Number(b.dataset.num));if(!S||!x)return;
@@ -415,9 +429,36 @@ function openForm(c,pre){editing=c||null;pendingImg=null;const d=c||pre||null;
   $("#fRar").value=d?.rarity||"";$("#fCount").value=d?.count||1;$("#fVal").value=d?.value_sek??"";$("#fNote").value=d?.note||"";
   seg($("#fStatus"),[["har","✅ Vi har det"],["onskar","✨ Önskar oss"]],d?.status||(st.tab==="set"?"har":st.tab));
   const s=c?src(c):"";$("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:"📷 Tryck för att ta eller välja en bild";
-  $("#formErr").textContent="";$("#file").value="";open("#formM");}
+  $("#formErr").textContent="";$("#file").value="";aiData=null;$("#aiBox").hidden=true;
+  $("#dropInner").innerHTML=s?`<img src="${esc(s)}" alt="">Tryck för att byta bild`:(c?"📷 Tryck för att ta eller välja en bild":"📷 Fota kortet – Claude fyller i resten");open("#formM");}
+function loadImg(file){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(file)})}
+function toJpeg(img,box,max,limit){const W=img.naturalWidth||img.width,H=img.naturalHeight||img.height;
+  let sx=0,sy=0,sw=W,sh=H;if(box){const m=.015;sx=Math.max(0,(box.x0-m)*W);sy=Math.max(0,(box.y0-m)*H);sw=Math.min(W,(box.x1+m)*W)-sx;sh=Math.min(H,(box.y1+m)*H)-sy}
+  const k=Math.min(1,max/Math.max(sw,sh)),w=Math.round(sw*k),h=Math.round(sh*k);const cv=document.createElement("canvas");cv.width=w;cv.height=h;
+  cv.getContext("2d").drawImage(img,sx,sy,sw,sh,0,0,w,h);let q=.85,d=cv.toDataURL("image/jpeg",q);while(d.length>limit&&q>.4){q-=.1;d=cv.toDataURL("image/jpeg",q)}return d}
+function ai(html,cls){const b=$("#aiBox");b.className="ai"+(cls?" "+cls:"");b.innerHTML=html;b.hidden=false}
 $("#file").addEventListener("change",async()=>{const f=$("#file").files[0];if(!f)return;
-  try{pendingImg=await shrink(f);$("#dropInner").innerHTML=`<img src="${pendingImg}" alt="">Bild vald ✓`}catch(_){$("#formErr").textContent="Kunde inte läsa bilden."}});
+  let img;try{img=await loadImg(f)}catch(_){$("#formErr").textContent="Kunde inte läsa bilden.";return}
+  pendingImg=toJpeg(img,null,700,550000);$("#dropInner").innerHTML=`<img src="${pendingImg}" alt="">Bild vald ✓`;
+  if(editing)return;
+  const sb=$("#saveBtn");sb.disabled=true;ai("🔍 Claude tittar på kortet …");
+  try{
+    const r=await fetch(SB+"/functions/v1/pokemon-identify",{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify({pw,bild:toJpeg(img,null,1400,3500000)})});
+    const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.fel||"Kunde inte känna igen kortet");
+    aiData=d;
+    $("#fName").value=d.name||"";$("#fType").value=d.type||"";$("#fHp").value=d.hp??"";$("#fSet").value=d.set||"";$("#fNum").value=d.number||"";
+    $("#fRar").value=d.rarity||"";$("#fVal").value=d.value_sek??"";$("#fNote").value=d.note||"";
+    if(d.ruta&&d.ruta.x1-d.ruta.x0>.2&&d.ruta.y1-d.ruta.y0>.2){pendingImg=toJpeg(img,d.ruta,700,550000);$("#dropInner").innerHTML=`<img src="${pendingImg}" alt="">Beskuren ✓ – tryck för att byta bild`}
+    const dup=cards.find(c=>(c.status||"har")==="har"&&codeOf(c)&&codeOf(c)===codeOf({set:d.set})&&numOf(c)!=null&&numOf(c)===numOf({number:d.number}));
+    const osaker=d.sakerhet<.6?`<br><span style="color:#b26b00">Claude är lite osäker – kolla gärna namn och nummer.</span>`:"";
+    ai(`✅ <b>${esc(d.name||"Okänt kort")}</b>${d.number?" · "+esc(d.number):""}${d.set?" · "+esc(d.set):""}${d.value_sek!=null?" · ≈ "+esc(kr(d.value_sek)):""}${d.kommentar?`<br>${esc(d.kommentar)}`:""}${osaker}
+      ${dup?`<br>Ni har redan det här kortet (×${Number(dup.count)||1}).<br><button type="button" class="btn primary" id="dupBtn" data-id="${esc(dup.id)}" data-n="${(Number(dup.count)||1)+1}">➕ Öka till ×${(Number(dup.count)||1)+1}</button>`:"<br>Kolla uppgifterna och tryck Spara."}`,"ok");
+  }catch(err){ai("😕 "+esc(err.message||"Kunde inte känna igen kortet")+" – fyll i själv, eller prova en bild med mindre reflexer.","bad")}
+  finally{sb.disabled=false}
+});
+$("#aiBox").addEventListener("click",async e=>{const b=e.target.closest("#dupBtn");if(!b)return;b.disabled=true;
+  try{await rpc("pokemon_save_card",{pw,card:{id:b.dataset.id,count:b.dataset.n}});close("#formM");toast("Antalet ökades till ×"+b.dataset.n);await load()}
+  catch(err){$("#formErr").textContent=pwErr(err);b.disabled=false}});
 function shrink(file){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const max=700;let w=img.width,h=img.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);let q=.82,d=cv.toDataURL("image/jpeg",q);
   while(d.length>550000&&q>.4){q-=.1;d=cv.toDataURL("image/jpeg",q)}res(d)};img.onerror=rej;img.src=URL.createObjectURL(file)})}
@@ -431,7 +472,7 @@ $("#cardForm").addEventListener("submit",async e=>{e.preventDefault();
     const card={name,type:$("#fType").value,hp:$("#fHp").value,set:$("#fSet").value.trim(),number:$("#fNum").value.trim(),rarity:$("#fRar").value,
       count:$("#fCount").value||"1",status:$("#fStatus").dataset.v,note:$("#fNote").value.trim(),img,value_sek:val};
     if(editing){card.id=editing.id;if(String(val)!==String(editing.value_sek??"")){card.value_source=val===""?"":"Eget värde";card.value_usd=""}}
-    else if(val!=="")card.value_source="Eget värde";
+    else if(val!==""){if(aiData&&String(aiData.value_sek)===String(val)){card.value_source=aiData.value_source||"";card.value_usd=aiData.value_usd??""}else card.value_source="Eget värde"}
     await rpc("pokemon_save_card",{pw,card});
     close("#formM");toast(editing?"Ändringen sparades":"Kortet lades till! 🃏");
     if(!editing&&st.tab!==card.status){st.tab=card.status;syncTabs()}
