@@ -358,7 +358,7 @@ function renderSets(){
     if(setFilter==="wish")shown=shown.filter(x=>wish[code+"#"+x.number]&&!have[code+"#"+x.number]);
     if(q)shown=shown.filter(x=>(x.name+" "+x.number).toLowerCase().includes(q));
     const kurs=Number(S.usd_sek)||9.6,kr2=x=>x.value_usd!=null?Math.round(x.value_usd*kurs):null;
-    const RR={MUR:7,SAR:6,MA:5,SR:4,AR:3,RR:2};
+    const RR={MUR:7,UR:7,SAR:6,MA:5,SR:4,AR:3,ACE:3,RR:2};
     if(setSort==="value")shown=shown.slice().sort((a,b)=>(kr2(b)??-1)-(kr2(a)??-1)||a.number-b.number);
     if(setSort==="rarity")shown=shown.slice().sort((a,b)=>(RR[b.rarity]||0)-(RR[a.rarity]||0)||(kr2(b)??-1)-(kr2(a)??-1)||a.number-b.number);
     if(setSort==="name")shown=shown.slice().sort((a,b)=>a.name.localeCompare(b.name,"sv")||a.number-b.number);
@@ -456,6 +456,8 @@ async function identify(){
     const body={pw,bild:toJpeg(mainImg,null,1400,3500000)};if(closeData)body.bild2=closeData;
     const r=await fetch(SB+"/functions/v1/pokemon-identify",{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.fel||"Kunde inte känna igen kortet");
+    // Osäkerhet om enbart folievarianten räcker inte för "Fota om".
+    if(d.kolla){const m=/^Osäkert: ([^.]*)\. /.exec(d.kolla);if(m){const kvar=m[1].split(", ").filter(x=>x!=="variant");d.kolla=kvar.length?d.kolla.replace(m[1],kvar.join(", ")):""}else d.kolla=d.kolla.replace(/; osäkert: variant(?=[.;])/,"")}
     aiData=d;
     $("#fName").value=d.name||"";$("#fType").value=d.type||"";$("#fHp").value=d.hp??"";$("#fSet").value=d.set||"";$("#fNum").value=d.number||"";
     $("#fRar").value=d.rarity||"";$("#fVal").value=d.value_sek??"";$("#fNote").value=d.note||"";
